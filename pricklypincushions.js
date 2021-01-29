@@ -313,6 +313,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.y += this.ymom
         }
         unmove() {
+            let messup = 1.0
             if (this.reflect == 1) {
                 if (this.x + this.radius > canvas.width) {
                     if (this.xmom > 0) {
@@ -335,8 +336,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
             }
-            this.x -= this.xmom
-            this.y -= this.ymom
+            if (this == player.body) {
+                canvas_context.translate(this.xmom*messup, this.ymom*messup)
+            }
+            this.x -= this.xmom*messup
+            this.y -= this.ymom*messup
         }
         frictiveMove() {
             if (this.reflect == 1) {
@@ -812,10 +816,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
             if(keysPressed[' ']){
-                player.control(TIP_engine)
+                players[0].control(TIP_engine)
             }
 
-            player.skillsAdapter(TIP_engine)
+            players[0].skillsAdapter(TIP_engine)
             window.addEventListener('pointermove', continued_stimuli);
         });
 
@@ -830,7 +834,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             TIP_engine.body = TIP_engine
 
 
-            player.control(TIP_engine)
+            players[0].control(TIP_engine)
 
             return false
         });
@@ -1192,12 +1196,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let path = new LineOP(base1.body, base2.body, "#FFAA55", 550)
     
     class Trap{
-        constructor(from,to){
+        constructor(from,to,owner){
 
             this.body = new Circle(from.x, from.y, 5, "green", 0 ,0)
             this.life = 1200
+            if(owner == players[0]){
             this.body.x = this.body.x+(to.x-(canvas.width*.5))
             this.body.y = this.body.y+(to.y-(canvas.height*.5))
+            }else{
+                this.body.x = to.x
+                this.body.y = to.y
+            }
 
         }
         draw(){
@@ -1207,26 +1216,30 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 
     class Pin{
-        constructor(from, to){
+        constructor(from, to, owner){
             this.body = new Circle(from.x, from.y, 5, "purple", 0 ,0)
             this.life = 150
             this.end = new Circle(this.body.x, this.body.y, 2, "black")
-            to.x = this.body.x+(to.x-(canvas.width*.5))
-            to.y = this.body.y+(to.y-(canvas.height*.5))
+            if(owner == players[0]){
+                to.x = this.body.x+(to.x-(canvas.width*.5))
+                to.y = this.body.y+(to.y-(canvas.height*.5))
+            }
 
 
             this.body.xmom = 0-(this.body.x-to.x)
             this.body.ymom = 0-(this.body.y-to.y)
 
-            while(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) > 3){
-                this.body.xmom *= 0.98
-                this.body.ymom *= 0.98
-                
-            }
-            while(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) < 3){
-                this.body.xmom *= 1.02
-                this.body.ymom *= 1.02
-            }
+            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+                while(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) > 3){
+                    this.body.xmom *= 0.98
+                    this.body.ymom *= 0.98
+                    
+                }
+                while(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) < 3){
+                    this.body.xmom *= 1.02
+                    this.body.ymom *= 1.02
+                }
+            // }
         }
         draw(){
             this.end.x = this.body.x-(10*this.body.xmom)
@@ -1245,7 +1258,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     class Pincushion {
         constructor(x,y, color){
             this.body = new Circle(x,y, 10, color)
-            this.movespeedbase = 3
+            this.movespeedbase = 2
             this.speedbonus = 0
             this.health = 250
             this.healthmax =this.health
@@ -1256,17 +1269,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.moveto.y = this.body.y
             this.traps = []
             this.spears = []
+            this.spearcost = 20
             this.speardamage = 160
             this.spearcooldown = 0
             this.speardrain = 200
             this.healcooldown = 0
             this.healdrain = 200
+            this.healcost = 50
             this.trapdamage = 200
             this.trapcooldown = 0
             this.trapdrain = 300
-            this.mps = .01
+            this.trapcost = 10
+            this.mps = .05
             this.hps = .1
-
+            this.traprange = 220
         
 
 
@@ -1288,19 +1304,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if(this.mana > this.manamax){
                     this.mana = this.manamax
                 }
-                this.speedbonus*=.99
             }else{
                 this.health = 0
             }
+            this.speedbonus*=.99
         }
         control(to){
-            this.moveto.x = this.body.x+(to.x-(canvas.width*.5))
-            this.moveto.y = this.body.y+(to.y-(canvas.height*.5))
+            if(this == players[0]){
+                this.moveto.x = this.body.x+(to.x-(canvas.width*.5))
+                this.moveto.y = this.body.y+(to.y-(canvas.height*.5))
+            }else{
+                this.moveto.x = to.x
+                this.moveto.y = to.y
+            }
         }
         drive(){
             this.body.xmom = 0-(this.body.x-this.moveto.x)
             this.body.ymom = 0-(this.body.y-this.moveto.y)
 
+            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
             while(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom))  > (this.movespeedbase+this.speedbonus)){
                 this.body.xmom *= 0.98
                 this.body.ymom *= 0.98
@@ -1309,27 +1331,39 @@ window.addEventListener('DOMContentLoaded', (event) => {
             while(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) < (this.movespeedbase+this.speedbonus)){
                 this.body.xmom *= 1.02
                 this.body.ymom *= 1.02
-            }
+            // }
+        }
         }
         skillsAdapter(to){
-            if(keysPressed['q']){
-                this.spear(to)
+            if(this == players[0]){
+                if(keysPressed['q']){
+                    this.spear(to)
+                }
+                if(keysPressed['w']){
+                    this.heal(to)
+                }
+                if(keysPressed['e']){
+                    this.trap(to)
+                }
+            }else{
+                let fuzz = {}
+                fuzz.x = ((Math.random()-.5)*10)+players[0].body.x
+                fuzz.y = ((Math.random()-.5)*10)+players[0].body.y
+                this.spear(fuzz)
+                this.heal()
+                fuzz.x = ((Math.random()-.5)*50)+players[0].body.x
+                fuzz.y = ((Math.random()-.5)*50)+players[0].body.y
+                this.trap(fuzz)
             }
-            if(keysPressed['w']){
-                this.heal(to)
-            }
-            if(keysPressed['e']){
-                this.trap(to)
-            }
-
 
         }
         spear(to){
-            if(this.mana > 20){
+            if(this.mana > this.spearcost){
                 if(this.spearcooldown <= 0){
-                    let pin = new Pin(this.body, to)
+                    let pin = new Pin(this.body, to, this)
                     this.spears.push(pin)
                     this.spearcooldown = this.speardrain
+                    this.mana-=this.spearcost
                 }
             }
 
@@ -1363,22 +1397,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         heal(){
 
-            if(this.mana > 50){
+            if(this.mana > this.healcost){
                 if(this.healcooldown <= 0){
                     this.health += 150
                     this.healcooldown = this.healdrain
+                    this.mana-= this.healcost
                 }
             }
 
 
         }
         trap(to){
-            if(this.mana > 10){
+            if(this.mana > this.trapcost){
                 if(this.trapcooldown <= 0){
-                    let trap = new Trap(this.body, to)
-                    this.traps.push(trap)
-                    // this.trapcooldown = this.trapdrain
-                    console.log(trap)
+                    let link = new LineOP(this.body, to)
+                    if(link.hypotenuse() < this.traprange){
+                        let trap = new Trap(this.body, to, this)
+                        this.traps.push(trap)
+                        this.trapcooldown = this.trapdrain
+                        this.mana-=this.trapcost
+                    }
                 }
             }
 
@@ -1392,11 +1430,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if(check.hypotenuse() > (.7*(this.movespeedbase+this.speedbonus))){
                 this.body.move()
             }
+            this.trapdraw()
+
+            if(keysPressed['e']){
+                if(this == players[0]){
+                    let circ = new Circle(this.body.x, this.body.y, this.traprange, "black")
+                    canvas_context.strokeStyle = circ.color
+                    canvas_context.beginPath()
+                    canvas_context.arc(circ.x, circ.y, circ.radius, 0, Math.PI*2, true)
+                    canvas_context.stroke()
+                    canvas_context.closePath()
+                }
+            }
             this.body.draw()
             this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius*2), this.body.radius*2, this.body.radius*.25, "green")
             this.healthbar.width = (this.health/this.healthmax)*this.body.radius*2
+            this.manabar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius*1.6), this.body.radius*2, this.body.radius*.25, "blue")
+            this.manabar.width = (this.mana/this.manamax)*this.body.radius*2
             this.healthbar.draw()
-            this.trapdraw()
+            this.manabar.draw()
             this.speardraw()
             this.cooldown()
             this.collide()
@@ -1413,7 +1465,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     for(let k = 0;k<players[t].traps.length;k++){
                         if(players[t].traps[k].body.doesPerimeterTouch(this.body)){
                             this.health -= (players[t].trapdamage)
-                            this.speedbonus = -2.5
+                            this.speedbonus = -1.9
                             players[t].traps[k].life = 0
                         }
                     }
@@ -1433,6 +1485,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     players.push(player)
     players.push(enemy)
+    let count = 0
     function main() {
         gamepadAPI.update()
         if (paused == -1) {
@@ -1444,10 +1497,27 @@ window.addEventListener('DOMContentLoaded', (event) => {
             base2.draw()
             rock1.draw()
             rock2.draw()
-            castBetween(rock1, rock2, 15, 100)
-            castBetween(rock3, rock4, 14, 100)
+            let beam1 = castBetween(rock1, rock2, 15, 100)
+            let beam2 = castBetween(rock3, rock4, 14, 100)
+          
             for(let t = 0;t<players.length;t++){
                 players[t].draw()
+                if(beam1.isPointInside(players[t].body) || beam2.isPointInside(players[t].body) || base1.body.isPointInside(players[t].body)  || base2.body.isPointInside(players[t].body)){
+                    players[t].body.unmove()
+                    players[t].body.xmom = 0
+                    players[t].body.ymom = 0
+                    players[t].control(players[t].body)
+                    players[t].body.x +=.001
+                }
+            }
+
+            let object = {}
+            object.x =   players[1].body.x +((Math.random()-.5)*100)
+            object.y=  players[1].body.y +((Math.random()-.5)*100)
+            count++
+            players[1].skillsAdapter(object)
+            if(count%15 == 0){
+                players[1].control(object)
             }
         }
     }
