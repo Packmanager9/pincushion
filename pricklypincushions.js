@@ -59,13 +59,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
             var axes = [];
             if (c.axes) {
                 for (var a = 0, x = c.axes.length; a < x; a++) {// loop through axes and push their values to the array
-                    axes.push(c.axes[a].toFixed(2));
+                    axes.push(parseFloat(c.axes[a].toFixed(2), 10));
                 }
             }
             gamepadAPI.axesStatus = axes;// assign received values
             gamepadAPI.buttonsStatus = pressed;
             // console.log(pressed); // return buttons for debugging purposes
-            players[0].gamepadSkillsAdapter(new Point(0,0))
             return pressed;
         },
         buttonPressed: function (button, hold) {
@@ -858,10 +857,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (typeof (gamepadAPI.axesStatus[0]) != 'undefined') {
                     let mover = {}
                     mover.x = object.moveto.x
-                    mover.y = object.moveto.y               
-                     mover.x += (gamepadAPI.axesStatus[0] * speed *2.01)
-                    mover.y += (gamepadAPI.axesStatus[1] * speed*2.01)
-                    if (!beam1.isPointInside(mover) && !beam2.isPointInside(mover) && !base1.body.isPointInside(mover)  && !base2.body.isPointInside(mover)) {
+                    mover.y = object.moveto.y
+                    mover.x += (gamepadAPI.axesStatus[0] * speed * 2.01)
+                    mover.y += (gamepadAPI.axesStatus[1] * speed * 2.01)
+                    if (!beam1.isPointInside(mover) && !beam2.isPointInside(mover) && !base1.body.isPointInside(mover) && !base2.body.isPointInside(mover)) {
                         object.moveto.x += (gamepadAPI.axesStatus[0] * speed)
                         object.moveto.y += (gamepadAPI.axesStatus[1] * speed)
                     }
@@ -876,18 +875,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
     }
+    let angles = {}
+    angles.right = 0
+    angles.left = 0
     function gamepad_angles() {
-        let angles = {}
-        angles.right = 0
-        angles.left = 0
-        angles.right = Math.atan2(gamepadAPI.axesStatus[1], gamepadAPI.axesStatus[0])
-        angles.left = Math.atan2(gamepadAPI.axesStatus[3], gamepadAPI.axesStatus[2])
+        // angles.left = Math.atan2(gamepadAPI.axesStatus[3], gamepadAPI.axesStatus[2])
+        // console.log(gamepadAPI)
 
-        if(isNaN(angles.right)){
-            angles.right = 0
+        if (Math.abs(gamepadAPI.axesStatus[1]) + Math.abs(gamepadAPI.axesStatus[0]) > 0.1) {
+            if (isNaN(angles.right)) {
+                angles.right = 0
+            } else {
+                angles.right = Math.atan2(gamepadAPI.axesStatus[1], gamepadAPI.axesStatus[0])
+            }
         }
-        if(isNaN(angles.left)){
-            angles.left = 0
+        if (Math.abs(gamepadAPI.axesStatus[2]) + Math.abs(gamepadAPI.axesStatus[3]) > 0.1) {
+            if (isNaN(angles.left)) {
+                angles.left = 0
+            } else {
+                angles.left = Math.atan2(gamepadAPI.axesStatus[3], gamepadAPI.axesStatus[2])
+            }
         }
 
 
@@ -965,11 +972,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         return color;
     }
+    function getRandomDarkGreen() {// color that will be visible on a black background
+        var letters = '0123456789ABCDEF';
+        var color = '#00';
+        for (var i = 0; i < 2; i++) {
+            color += "3"//letters[(Math.floor(Math.random() * 3))];
+        }
+        color += "00"
+        return color;
+    }
     function castBetween(from, to, granularity = 10, radius = 1) { //creates a sort of beam hitbox between two points, with a granularity (number of members over distance), with a radius defined as well
         let limit = granularity
         let shape_array = []
         for (let t = 0; t < limit; t++) {
-            let circ = new Circle((from.x * (t / limit)) + (to.x * ((limit - t) / limit)), (from.y * (t / limit)) + (to.y * ((limit - t) / limit)), radius, "white")
+            let circ = new Circle((from.x * (t / limit)) + (to.x * ((limit - t) / limit)), (from.y * (t / limit)) + (to.y * ((limit - t) / limit)), radius, getRandomDarkGreen())
             shape_array.push(circ)
             circ.draw()
         }
@@ -1214,10 +1230,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     let base1 = new Base(360, 1000, 300, "red")
     let base2 = new Base(360, -1000, 300, "blue")
-    let rock1 = new Circle(85, 1000, 10, "orange")
-    let rock2 = new Circle(85, -1000, 10, "white")
-    let rock3 = new Circle(635, 1000, 10, "orange")
-    let rock4 = new Circle(635, -1000, 10, "white")
+    let rock1 = new Circle(80, 1000, 10, "orange")
+    let rock2 = new Circle(80, -1000, 10, "white")
+    let rock3 = new Circle(640, 1000, 10, "orange")
+    let rock4 = new Circle(640, -1000, 10, "white")
 
     let path = new LineOP(base1.body, base2.body, "#FFAA55", 550)
 
@@ -1226,20 +1242,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             this.life = 1200
             if (owner == players[0]) {
-                this.body = new Circle(from.x, from.y, 5, "#00FF00", 0, 0)
-                // this.body.x = this.body.x+(to.x-(canvas.width*.5))
-                // this.body.y = this.body.y+(to.y-(canvas.height*.5))
-                this.body.x = to.x
-                this.body.y = to.y
+                this.body = new Circle(to.x, to.y, 5, "magenta", 0, 0)
+                this.body2 = new Circle(to.x, to.y, 4, "yellow", 0, 0)
+                this.body3 = new Circle(to.x, to.y, 3, "magenta", 0, 0)
+                this.body4 = new Circle(to.x, to.y, 2, "yellow", 0, 0)
+                this.body5 = new Circle(to.x, to.y, 1, "magenta", 0, 0)
             } else {
-                this.body = new Circle(from.x, from.y, 5, "#FF0000", 0, 0)
-                this.body.x = to.x
-                this.body.y = to.y
+                this.body = new Circle(to.x, to.y, 5, "cyan", 0, 0)
+                this.body2 = new Circle(to.x, to.y, 4, "black", 0, 0)
+                this.body3 = new Circle(to.x, to.y, 3, "cyan", 0, 0)
+                this.body4 = new Circle(to.x, to.y, 2, "black", 0, 0)
+                this.body5 = new Circle(to.x, to.y, 1, "cyan", 0, 0)
             }
 
         }
         draw() {
             this.body.draw()
+            this.body2.draw()
+            this.body3.draw()
+            this.body4.draw()
+            this.body5.draw()
         }
 
     }
@@ -1247,8 +1269,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
     class Pin {
         constructor(from, to, owner) {
             this.body = new Circle(from.x, from.y, 5, "purple", 0, 0)
-            this.life = 150
+            this.life = 100
             this.end = new Circle(this.body.x, this.body.y, 2, "black")
+            this.shaft = new Shape([])
             if (owner == players[0]) {
                 to.x = this.body.x + (to.x - (canvas.width * .5))
                 to.y = this.body.y + (to.y - (canvas.height * .5))
@@ -1262,12 +1285,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.body.ymom = 0 - (this.body.y - to.y)
 
             // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
-            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > 3) {
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > 4.5) {
                 this.body.xmom *= 0.98
                 this.body.ymom *= 0.98
 
             }
-            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < 3) {
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < 4.5) {
                 this.body.xmom *= 1.02
                 this.body.ymom *= 1.02
             }
@@ -1277,7 +1300,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.end.x = this.body.x - (10 * this.body.xmom)
             this.end.y = this.body.y - (10 * this.body.ymom)
             this.link = new LineOP(this.end, this.body, "black", 4)
-            this.link.draw()
+
+            this.shaft = castBetween(this.end, this.body)
+            // this.link.draw()
             this.end.draw()
             this.body.draw()
         }
@@ -1290,35 +1315,82 @@ window.addEventListener('DOMContentLoaded', (event) => {
     class Pincushion {
         constructor(x, y, color) {
             this.body = new Circle(x, y, 10, color)
-            this.movespeedbase = 2
+            this.movespeedbase = 1
+            this.trapdrop = -.99
             this.speedbonus = 0
-            this.health = 250
+            this.health = 550
             this.healthmax = this.health
-            this.mana = 100
+            this.mana = 300
             this.manamax = this.mana
             this.moveto = {}
-            this.moveto.x = this.body.x - 1
+            this.moveto.x = this.body.x - 1.01
             this.moveto.y = this.body.y
             this.traps = []
             this.spears = []
-            this.spearcost = 20
-            this.speardamage = 160
+            this.spearcost = 29
+            this.speardamage = 210
             this.spearcooldown = 0
-            this.speardrain = 200
+            this.speardrain = 180
             this.healcooldown = 0
-            this.healdrain = 200
+            this.healdrain = 120
             this.healcost = 50
             this.trapdamage = 40
             this.trapcooldown = 0
-            this.trapdrain = 300
-            this.trapcost = 10
-            this.mps = .05
-            this.hps = .1
-            this.traprange = 220
-
-
-
-
+            this.trapdrain = 280
+            this.trapcost = 30
+            this.mps = .1
+            this.hps = .15
+            this.traprange = 100
+            this.healpower = 150
+            this.army = []
+            this.spawner = 0
+            this.spawnpoint = new Point(this.body.x, this.body.y)
+        }
+        marshal() {
+            if (this.spawner % 1000 == 20) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 40) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 60) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 80) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 100) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            this.spawner++
+            this.command()
+            this.burial()
+        }
+        command() {
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].draw()
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+        }
+        burial() {
+            for (let t = 0; t < this.army.length; t++) {
+                if (this.army[t].health <= 0) {
+                    this.army.splice(t, 1)
+                }
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
 
         }
         cooldown() {
@@ -1327,6 +1399,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.trapcooldown--
         }
         regen() {
+            this.marshal()
             if (this.health > 0) {
                 this.mana += this.mps
                 this.health += this.hps
@@ -1337,14 +1410,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.mana = this.manamax
                 }
             } else {
-                this.health = 0
+                if (this == players[0]) {
+                    canvas_context.translate(this.body.x - this.spawnpoint.x, this.body.y - this.spawnpoint.y)
+                }
+                this.health = this.healthmax
+                this.mana = this.manamax
+                this.body.y = this.spawnpoint.y
+                this.body.x = this.spawnpoint.x
+                this.moveto.x = this.body.x + 1
+                this.moveto.y = this.body.y + 1
+                this.speedbonus = 0
             }
-            this.speedbonus *= .99
+            this.speedbonus *= .999
         }
         control(to) {
             if (this == players[0]) {
-                this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
-                this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
+                this.moveto.x = to.x
+                this.moveto.y = to.y
+                // this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
+                // this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
             } else {
                 this.moveto.x = to.x
                 this.moveto.y = to.y
@@ -1366,11 +1450,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 // }
             }
         }
-        gamepadSkillsAdapter(to){
+        gamepadSkillsAdapter(to) {
 
             let towards = new Point(0, 0)
-            towards.x = (Math.cos(gamepad_angles().left) * 100)+360
-            towards.y = (Math.sin(gamepad_angles().left) * 100)+360
+            towards.x = (Math.cos(gamepad_angles().left) * 100) + 360
+            towards.y = (Math.sin(gamepad_angles().left) * 100) + 360
 
             let link = new LineOP(this.body, towards)
             link.draw()
@@ -1391,20 +1475,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.spear(to)
                 }
                 if (keysPressed['w']) {
-                    this.heal(to)
+                    this.heal()
                 }
                 if (keysPressed['e']) {
-                    this.trap()
+                    this.trap(to)
                 }
             } else {
                 let fuzz = {}
                 fuzz.x = ((Math.random() - .5) * 10) + players[0].body.x
                 fuzz.y = ((Math.random() - .5) * 10) + players[0].body.y
-                this.spear(fuzz)
-                this.heal()
-                fuzz.x = ((Math.random() - .5) * 50) + players[0].body.x
-                fuzz.y = ((Math.random() - .5) * 50) + players[0].body.y
-                this.trap(fuzz)
+                if (Math.random() < .01) {
+                    // let wet = 0
+                    // for(let t =0;t<players.length;t++){
+                    //     if(lthis != players[t]){
+                    //     let link = new LineOp(this.body, players[t].body)
+                    //     if(link.hypotenuse() < 730){
+                    //         wet = 1
+                    //     }
+                    // }
+                    // }
+                    // if(wet == 1){
+                    this.spear(fuzz)
+                    // }
+                }
+
+                if (this.mana > this.healcost + Math.max(this.spearcost, this.trapcost)) {
+                    if (Math.random() < .003) {
+                        if (this.health < this.maxhealth - this.healpower){
+                            this.heal()
+                        }
+                    }
+                }
+                fuzz.x = ((Math.random() - .5) * 100) + this.body.x
+                fuzz.y = ((Math.random() - .5) * 100) + this.body.y
+                if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
+                    if (Math.random() < .005) {
+                        this.trap(fuzz)
+                    }
+                }
             }
 
         }
@@ -1450,7 +1558,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             if (this.mana > this.healcost) {
                 if (this.healcooldown <= 0) {
-                    this.health += 150
+                    this.health += this.healpower
                     this.healcooldown = this.healdrain
                     this.mana -= this.healcost
                 }
@@ -1470,19 +1578,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     wet = 1
                 }
             }
-            if (wet == 0) {
-                if (this.mana > this.trapcost) {
-                    if (this.trapcooldown <= 0) {
-
-                        let link = new LineOP(this.body, to)
-                        if (link.hypotenuse() < this.traprange) {
-
-                            this.traps.push(trap)
-                        }
-                        this.trapcooldown = this.trapdrain
-                        this.mana -= this.trapcost
+            if (this.trapcooldown <= 0) {
+                let link = new LineOP(this.body, to)
+                if (link.hypotenuse() < this.traprange) {
+                    if (this.mana >= this.trapcost) {
+                    } else {
+                        wet = 1
                     }
+                } else {
+                    wet = 1
                 }
+            } else {
+                wet = 1
+            }
+            if (wet == 0) {
+
+                this.traps.push(trap)
+                this.mana -= this.trapcost
+                this.trapcooldown = this.trapdrain
             }
 
 
@@ -1492,14 +1605,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
             if (this == players[0]) {
-            let towards = new Point(0, 0)
-            towards.x = (Math.cos(gamepad_angles().left) * 100)+this.body.x
-            towards.y = (Math.sin(gamepad_angles().left) * 100)+this.body.y
+                let towards = new Point(0, 0)
+                towards.x = (Math.cos(gamepad_angles().left) * 100) + this.body.x
+                towards.y = (Math.sin(gamepad_angles().left) * 100) + this.body.y
 
-            let link = new LineOP(this.body, towards)
-            link.draw()
+                let link = new LineOP(this.body, towards, "white", 1)
+                link.draw()
             }
-            
+
             this.regen()
             this.drive()
             let check = new LineOP(this.moveto, this.body)
@@ -1536,12 +1649,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         if (players[t].spears[k].body.doesPerimeterTouch(this.body)) {
                             this.health -= (players[t].speardamage - (players[t].spears[k].life))
                             players[t].spears[k].life = 0
+                        } else if (players[t].spears[k].shaft.doesPerimeterTouch(this.body)) {
+                            this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                            players[t].spears[k].life = 0
                         }
                     }
                     for (let k = 0; k < players[t].traps.length; k++) {
                         if (players[t].traps[k].body.doesPerimeterTouch(this.body)) {
                             this.health -= (players[t].trapdamage)
-                            this.speedbonus = -1.9
+                            this.speedbonus = players[t].trapdrop
                             players[t].traps[k].life = 0
                         }
                     }
@@ -1553,32 +1669,223 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     }
 
+    class Mob {
+        constructor(x, y, player) {
+            this.body = new Circle(x + (Math.random()), y + (Math.random()), 10, player.base.body.color)
+            this.moveto = {}
+            this.target = {}
+            this.range = 25
+            this.player = player
+            this.health = 300
+            this.maxhealth = this.health
+            this.melee = 1
+            this.movespeed = .999
+            this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "#00ff00")
+
+            for (let t = 0; t < players.length; t++) {
+                if (players[t] != this.player) {
+                    this.target = players[t].base
+                }
+            }
+        }
+        aggro() {
+
+
+            let wet = 1
+
+            for (let t = 0; t < players.length; t++) {
+                if (players[t] != this.player) {
+                    if (players[t].army.includes(this.target)) {
+                        this.wet = 0
+                    }
+                }
+            }
+            if (wet == 1) {
+                for (let t = 0; t < players.length; t++) {
+                    if (players[t] != this.player) {
+                        this.target = players[t].base
+                    }
+                }
+            }
+            for (let t = 0; t < players.length; t++) {
+                if (players[t] != this.player) {
+                    for (let k = 0; k < players[t].army.length; k++) {
+                        let link = new LineOP(this.body, players[t].army[k].body)
+                        let link2 = new LineOP(this.target.body, this.body)
+                        if (link.hypotenuse() < link2.hypotenuse()) {
+                            this.target = players[t].army[k]
+                        }
+                    }
+                }
+            }
+            for (let t = 0; t < players.length; t++) {
+                if (players[t] != this.player) {
+                    let link = new LineOP(this.body, players[t].body)
+                    let link2 = new LineOP(this.target.body, this.body)
+                    if (link.hypotenuse() < link2.hypotenuse()) {
+                        this.target = players[t]
+                    }
+                }
+            }
+        }
+        move() {
+            let link = new LineOP(this.target.body, this.body)
+            if (link.hypotenuse() > this.range) {
+                let xvec = (this.target.body.x - this.body.x)
+                let yvec = (this.target.body.y - this.body.y)
+                let k = 0
+                while (Math.abs(xvec) + Math.abs(yvec) > this.movespeed) {
+                    xvec *= .99
+                    yvec *= .99
+                    k++
+                    if (k > 10000) {
+                        break
+                    }
+                }
+                while (Math.abs(xvec) + Math.abs(yvec) <  this.movespeed) {
+                    xvec *= 1.05
+                    yvec *= 1.05
+                    k++
+                    if (k > 10000) {
+                        break
+                    }
+                }
+                this.body.x += xvec
+                this.body.y += yvec
+            } else if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
+                this.target.health -= this.melee
+            }
+        }
+        repel() {
+
+            for (let t = 0; t < players.length; t++) {
+                for (let k = 0; k < players[t].army.length; k++) {
+                    if (players[t].army[k] != this) {
+                        if (players[t].army[k].body.doesPerimeterTouch(this.body)) {
+                            const distance = ((new LineOP(this.body, players[t].army[k].body)).hypotenuse()) - (players[t].army[k].body.radius + this.body.radius)
+                            const angleRadians = Math.atan2(players[t].army[k].body.y - this.body.y, players[t].army[k].body.x - this.body.x);
+                            this.body.x += (Math.cos(angleRadians) * distance) / 2
+                            this.body.y += (Math.sin(angleRadians) * distance) / 2
+                            players[t].army[k].body.x -= (Math.cos(angleRadians) * distance) / 2
+                            players[t].army[k].body.y -= (Math.sin(angleRadians) * distance) / 2
+                        }
+                    }
+                }
+            }
+            for (let t = 0; t < players.length; t++) {
+                if (players[t].body.doesPerimeterTouch(this.body)) {
+                    const distance = ((new LineOP(this.body, players[t].body)).hypotenuse()) - (players[t].body.radius + this.body.radius)
+                    const angleRadians = Math.atan2(players[t].body.y - this.body.y, players[t].body.x - this.body.x);
+                    this.body.x += (Math.cos(angleRadians) * distance) / 2
+                    this.body.y += (Math.sin(angleRadians) * distance) / 2
+                }
+            }
+        }
+        draw() {
+            this.aggro()
+            this.repel()
+            this.move()
+            this.collide()
+            this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "#00ff00")
+            this.healthbar.width = (this.health / this.maxhealth) * this.body.radius * 2
+            this.healthbar.draw()
+            this.body.draw()
+            this.healthbar.draw()
+
+            // console.log(this.healthbar)
+
+        }
+        collide() {
+            for (let t = 0; t < players.length; t++) {
+                if (this.player != players[t]) {
+                    for (let k = 0; k < players[t].spears.length; k++) {
+                        if (players[t].spears[k].body.doesPerimeterTouch(this.body)) {
+                            this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                            players[t].spears[k].life = 0
+                        } else if (players[t].spears[k].shaft.doesPerimeterTouch(this.body)) {
+                            this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                            players[t].spears[k].life = 0
+                        }
+                    }
+                    for (let k = 0; k < players[t].traps.length; k++) {
+                        if (players[t].traps[k].body.doesPerimeterTouch(this.body)) {
+                            this.health -= (players[t].trapdamage)
+                            this.movespeed *= .1
+                            players[t].traps[k].life = 0
+                        }
+                    }
+                }
+
+            }
+
+        }
+        drawbar() {
+            this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "#00ff00")
+            this.healthbar.width = (this.health / this.maxhealth) * this.body.radius * 2
+            this.healthbar.draw()
+        }
+
+
+    }
+
 
     let player = new Pincushion(360, 360, "magenta")
     let enemy = new Pincushion(360, -500, "cyan")
+    player.base = base1
+    enemy.base = base2
 
     let players = []
 
-    let beam1 = castBetween(rock1, rock2, 15, 100)
-    let beam2 = castBetween(rock3, rock4, 14, 100)
+    let beam1 = castBetween(rock1, rock2, 23, 100)
+    let beam2 = castBetween(rock3, rock4, 23, 100)
     players.push(player)
     players.push(enemy)
+
+
+
     let count = 0
     function main() {
         gamepadAPI.update()
+        players[0].gamepadSkillsAdapter(new Point(0, 0))
         // console.log(gamepad_angles())
-        gamepad_control(players[0], players[0].movespeedbase+players[0].speedbonus)
+        gamepad_control(players[0], players[0].movespeedbase + players[0].speedbonus)
         if (paused == -1) {
         } else {
             canvas_context.clearRect(-10000, -10000, canvas.width * 100, canvas.height * 100)  // refreshes the image
             canvas_context.fillStyle = "white"
             path.draw()
-            base1.draw()
-            base2.draw()
+            // base1.draw()
+            // base2.draw()
             rock1.draw()
             rock2.draw()
-            beam1 = castBetween(rock1, rock2, 15, 100)
-            beam2 = castBetween(rock3, rock4, 14, 100)
+            beam1 = castBetween(rock1, rock2, 23, 100)
+            beam2 = castBetween(rock3, rock4, 23, 100)
+
+            for (let t = 0; t < players.length; t++) {
+                for (let k = 0; k < players.length; k++) {
+                    if (players[t] != players[k]) {
+                        for (let j = 0; j < players[k].army.length; j++) {
+                            players[k].army[j].body.radius -= 1
+                            if (players[k].army[j].body.doesPerimeterTouch(players[t].body)) {
+                                players[t].body.xmom *= .10
+                                players[t].body.ymom *= .10
+                                players[t].body.unmove()
+                                players[t].body.xmom = 0
+                                players[t].body.ymom = 0
+                                players[t].moveto.x = players[t].body.x
+                                players[t].moveto.y = players[t].body.y
+                                players[t].body.x -= .001
+                                players[t].control(players[t].body)
+                                players[k].army[j].body.radius += 1
+                                players[t].body.x += .001
+                                break
+                            } else {
+                                players[k].army[j].body.radius += 1
+                            }
+                        }
+                    }
+                }
+            }
 
             for (let t = 0; t < players.length; t++) {
                 players[t].draw()
@@ -1586,10 +1893,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     players[t].body.unmove()
                     players[t].body.xmom = 0
                     players[t].body.ymom = 0
+                    players[t].body.x -= .001
                     players[t].control(players[t].body)
                     players[t].body.x += .001
                 }
             }
+
+
 
             let object = {}
             object.x = players[1].body.x + ((Math.random() - .5) * 120)
@@ -1597,7 +1907,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
             count++
             players[1].skillsAdapter(object)
             if (count % 40 == 0) {
+
+                let object = {}
+                object.x = ((Math.random() - .5) * 120) + players[1].body.x
+                object.y = ((Math.random() - .5) * 120) + players[1].body.y
+                if (Math.random() < .1) {
+                    object.x = ((Math.random() - .5) * 120) + (players[0].body.x) //players[1].body.x +
+                    object.y = ((Math.random() - .5) * 120) + (players[0].body.y) //players[1].body.y +
+                }
                 players[1].control(object)
+            }
+
+            for (let t = 0; t < players.length; t++) {
+                for (let k = 0; k < players[t].army.length; k++) {
+                    players[t].army[k].drawbar()
+                }
             }
         }
     }
