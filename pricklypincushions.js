@@ -1355,7 +1355,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.ymom *= 0.98
 
                 k++
-                if(k>1000){
+                if (k > 1000) {
                     break
                 }
             }
@@ -1365,7 +1365,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.ymom *= 1.02
 
                 k++
-                if(k>1000){
+                if (k > 1000) {
                     break
                 }
             }
@@ -1410,7 +1410,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.xmom *= 0.98
                 this.body.ymom *= 0.98
                 k++
-                if(k>1000){
+                if (k > 1000) {
                     break
                 }
 
@@ -1421,7 +1421,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.ymom *= 1.02
 
                 k++
-                if(k>1000){
+                if (k > 1000) {
                     break
                 }
             }
@@ -1931,18 +1931,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
             } else if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
                 let dummy = this.target.health
                 this.target.health -= this.melee
-              
-            if (dummy > this.target.health) {
-                if (this.target.activeshield > 0) {
-                    this.target.health += this.target.activeshield
-                    if (this.target.health > this.target.healthmax) {
-                        this.target.activeshield = (this.target.health - this.target.maxhealth)
-                        this.target.health = this.target.healthmax
-                    } else {
-                        this.activeshield = 0
+
+
+
+                if (dummy > this.target.health) {
+                    if (this.target.activeshield > 0) {
+                        if (this.target.activeshield >= dummy - this.target.health) {
+                            this.target.activeshield -= dummy - this.target.health
+                            this.target.health = dummy
+                        } else {
+                            this.target.health += this.target.activeshield
+                            this.target.activeshield = 0
+                        }
                     }
                 }
-            }
             }
         }
         repel() {
@@ -2151,21 +2153,22 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.y += yvec
             } else if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
                 this.counter++
-                if (this.counter % this.attackspeed == 0) {   
+                if (this.counter % this.attackspeed == 0) {
                     let dummy = this.target.health
                     this.target.health -= this.melee
-                  
-                if (dummy > this.target.health) {
-                    if (this.target.activeshield > 0) {
-                        this.target.health += this.target.activeshield
-                        if (this.target.health > this.target.healthmax) {
-                            this.target.activeshield = (this.target.health - this.target.maxhealth)
-                            this.target.health = this.target.healthmax
-                        } else {
-                            this.activeshield = 0
+
+
+                    if (dummy > this.target.health) {
+                        if (this.target.activeshield > 0) {
+                            if (this.target.activeshield >= dummy - this.target.health) {
+                                this.target.activeshield -= dummy - this.target.health
+                                this.target.health = dummy
+                            } else {
+                                this.target.health += this.target.activeshield
+                                this.target.activeshield = 0
+                            }
                         }
                     }
-                }
                     let link = new LineOP(this.body, this.target.body, this.body.color, 5)
                     link.draw()
                 } else if (this.counter % this.attackspeed >= (this.attackspeed - 10)) {
@@ -2698,7 +2701,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     players[t].drive()
                                     players[t].body.move()
                                     k++
-                                    if(k>1000){
+                                    if (k > 1000) {
                                         break
                                     }
                                 }
@@ -3352,13 +3355,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
             }
+
+
             if (dummy > this.health) {
                 if (this.activeshield > 0) {
-                    this.health += this.activeshield
-                    if (this.health > this.healthmax) {
-                        this.activeshield = (this.health - this.maxhealth)
-                        this.health = this.healthmax
+                    if (this.activeshield >= dummy - this.health) {
+                        this.activeshield -= dummy - this.health
+                        this.health = dummy
                     } else {
+                        this.health += this.activeshield
                         this.activeshield = 0
                     }
                 }
