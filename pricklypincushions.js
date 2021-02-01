@@ -830,7 +830,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
                 if (pingirl.isPointInside(TIP_engine)) {
                     selected++
-                    players[0] = new Gasbag(360, 360, "magenta")
+                    players[0] = new Pincushion(360, 360, "magenta")
                     players[0].base = base1
                     let tower = new Tower(players[0].body.x - 110, players[0].body.y - 170, players[0])
                     players[0].army.push(tower)
@@ -846,7 +846,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             } else if (selected == 1) {
                 if (gasman.isPointInside(TIP_engine)) {
                     selected++
-                    players[1] = new Pincushion(360, -500, "cyan")
+                    players[1] = new Gasbag(360, -500, "cyan")
                     players[1].base = base2
                     let tower = new Tower(players[1].body.x + 110, players[1].body.y + 170, players[1])
                     players[1].army.push(tower)
