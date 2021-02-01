@@ -336,7 +336,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
             }
-            if (this == player.body) {
+            if (this == players[0].body) {
                 canvas_context.translate(this.xmom * messup, this.ymom * messup)
             }
             this.x -= this.xmom * messup
@@ -820,36 +820,50 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
 
 
-            if(selected == 0){
-                if(gasman.isPointInside(TIP_engine)){
-                    selected++
-                     players[0] = new Gasbag(360, 360, "magenta")
-                     players[0].base = base1
-                     let tower = new Tower(players[0].body.x - 140, players[0].body.y - 170, players[0])
-                     players[0].army.push(tower)
-                }
-                if(pingirl.isPointInside(TIP_engine)){
+            if (selected == 0) {
+                if (gasman.isPointInside(TIP_engine)) {
                     selected++
                     players[0] = new Gasbag(360, 360, "magenta")
                     players[0].base = base1
-                    let tower = new Tower(players[0].body.x - 140, players[0].body.y - 170, players[0])
+                    let tower = new Tower(players[0].body.x - 110, players[0].body.y - 170, players[0])
                     players[0].army.push(tower)
                 }
-                
-            }else if(selected == 1){
-                if(gasman.isPointInside(TIP_engine)){
+                if (pingirl.isPointInside(TIP_engine)) {
+                    selected++
+                    players[0] = new Gasbag(360, 360, "magenta")
+                    players[0].base = base1
+                    let tower = new Tower(players[0].body.x - 110, players[0].body.y - 170, players[0])
+                    players[0].army.push(tower)
+                }
+                if (blindmonk.isPointInside(TIP_engine)) {
+                    selected++
+                    players[0] = new Blindmonk(360, 360, "magenta")
+                    players[0].base = base1
+                    let tower = new Tower(players[0].body.x - 110, players[0].body.y - 170, players[0])
+                    players[0].army.push(tower)
+                }
+
+            } else if (selected == 1) {
+                if (gasman.isPointInside(TIP_engine)) {
                     selected++
                     players[1] = new Pincushion(360, -500, "cyan")
                     players[1].base = base2
-                    let tower = new Tower(players[1].body.x + 140, players[1].body.y + 170, players[1])
+                    let tower = new Tower(players[1].body.x + 110, players[1].body.y + 170, players[1])
                     players[1].army.push(tower)
                 }
-                if(pingirl.isPointInside(TIP_engine)){
-                     selected++
-                     players[1] = new Pincushion(360, -500, "cyan")
-                     players[1].base = base2
-                     let tower = new Tower(players[1].body.x + 140, players[1].body.y + 170, players[1])
-                     players[1].army.push(tower)
+                if (pingirl.isPointInside(TIP_engine)) {
+                    selected++
+                    players[1] = new Pincushion(360, -500, "cyan")
+                    players[1].base = base2
+                    let tower = new Tower(players[1].body.x + 110, players[1].body.y + 170, players[1])
+                    players[1].army.push(tower)
+                }
+                if (blindmonk.isPointInside(TIP_engine)) {
+                    selected++
+                    players[1] = new Blindmonk(360, -500, "cyan")
+                    players[1].base = base2
+                    let tower = new Tower(players[1].body.x + 110, players[1].body.y + 170, players[1])
+                    players[1].army.push(tower)
                 }
             }
 
@@ -1300,6 +1314,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
 
     }
+    class Slam {
+        constructor(from, to, owner) {
+
+            this.life = 5
+            this.body = new Circle(from.x, from.y, 50, "#AA660088")
+
+        }
+        draw() {
+            this.body.draw()
+        }
+        move() {
+            this.body.move()
+        }
+
+    }
 
     class Pin {
         constructor(from, to, owner) {
@@ -1347,8 +1376,47 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
     }
+
+    class Orb {
+        constructor(from, to, owner) {
+            this.body = new Circle(from.x, from.y, 5, "purple", 0, 0)
+            this.life = 70
+            if (owner == players[0]) {
+                to.x = this.body.x + (to.x - (canvas.width * .5))
+                to.y = this.body.y + (to.y - (canvas.height * .5))
+                this.body.color = "#00ff00"
+            } else {
+                this.body.color = "#FF0000"
+            }
+
+
+            this.body.xmom = 0 - (this.body.x - to.x)
+            this.body.ymom = 0 - (this.body.y - to.y)
+
+            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > 5.5) {
+                this.body.xmom *= 0.98
+                this.body.ymom *= 0.98
+
+            }
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < 5.5) {
+                this.body.xmom *= 1.02
+                this.body.ymom *= 1.02
+            }
+            // }
+        }
+        draw() {
+            this.body.draw()
+        }
+        move() {
+            this.body.move()
+        }
+
+
+    }
     class Pincushion {
         constructor(x, y, color) {
+            this.locked = 0
             this.gold = 500
             this.goldvalue = 300
             this.body = new Circle(x, y, 10, color)
@@ -1383,6 +1451,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.spawner = 0
             this.spawnpoint = new Point(this.body.x, this.body.y)
             this.gasbag = 0
+            this.blindmonk = 0
             this.pincushion = 1
         }
         marshal() {
@@ -1478,15 +1547,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.body.ymom = 0 - (this.body.y - this.moveto.y)
 
             // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+            let k = 0
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
                 this.body.xmom *= 0.98
                 this.body.ymom *= 0.98
-
+                if (k == 10000) {
+                    break
+                } else {
+                    k++
+                }
             }
+            k = 0
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
                 this.body.xmom *= 1.02
                 this.body.ymom *= 1.02
-                // }
+                if (k == 10000) {
+                    break
+                } else {
+                    k++
+                }
             }
         }
         gamepadSkillsAdapter(to) {
@@ -1642,10 +1721,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         draw() {
 
-            if(this == players[0]){
+            if (this == players[0]) {
                 canvas_context.fillStyle = "gold"
                 canvas_context.font = "20px arial"
-                canvas_context.fillText(`${this.gold}`, this.body.x-340, this.body.y-340)
+                canvas_context.fillText(`${this.gold}`, this.body.x - 340, this.body.y - 340)
             }
 
             if (this == players[0]) {
@@ -1716,6 +1795,22 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.health -= (players[t].trapdamage)
                                 this.speedbonus = players[t].trapdrop
                                 players[t].traps[k].life = 0
+                            }
+                        }
+                    } else if (players[t].blindmonk == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].dashtarget.x = this.body.x
+                                players[t].dashtarget.y = this.body.y
+                                players[t].dashstate = 1
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -1812,7 +1907,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.x += xvec
                 this.body.y += yvec
             } else if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
+                let dummy = this.target.health
                 this.target.health -= this.melee
+              
+            if (dummy > this.target.health) {
+                if (this.target.activeshield > 0) {
+                    this.target.health += this.target.activeshield
+                    if (this.target.health > this.target.healthmax) {
+                        this.target.activeshield = (this.target.health - this.target.maxhealth)
+                        this.target.health = this.target.healthmax
+                    } else {
+                        this.activeshield = 0
+                    }
+                }
+            }
             }
         }
         repel() {
@@ -1825,7 +1933,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                             const angleRadians = Math.atan2(players[t].army[k].body.y - this.body.y, players[t].army[k].body.x - this.body.x);
                             this.body.x += (Math.cos(angleRadians) * distance) / 2
                             this.body.y += (Math.sin(angleRadians) * distance) / 2
-                            if(players[t].army[k].tower != 1){
+                            if (players[t].army[k].tower != 1) {
                                 players[t].army[k].body.x -= (Math.cos(angleRadians) * distance) / 2
                                 players[t].army[k].body.y -= (Math.sin(angleRadians) * distance) / 2
                             }
@@ -1892,14 +2000,30 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.movespeed *= .99
                             }
                         }
+                    } else if (players[t].blindmonk == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.movespeed *= .95
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].dashtarget.x = this.body.x
+                                players[t].dashtarget.y = this.body.y
+                                players[t].dashstate = 1
+                                players[t].orblist[k].life = 0
+                            }
+                        }
                     }
-                    if(this.health <= 0){
+                    if (this.health <= 0) {
                         players[t].gold += this.goldvalue
                         break
                     }
 
-                    if(this.health <= 0){
-                        players[t].gold+=this.goldvalue
+                    if (this.health <= 0) {
+                        players[t].gold += this.goldvalue
                         break
                     }
                 }
@@ -2005,11 +2129,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.y += yvec
             } else if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
                 this.counter++
-                if(this.counter%this.attackspeed == 0){
+                if (this.counter % this.attackspeed == 0) {   
+                    let dummy = this.target.health
                     this.target.health -= this.melee
+                  
+                if (dummy > this.target.health) {
+                    if (this.target.activeshield > 0) {
+                        this.target.health += this.target.activeshield
+                        if (this.target.health > this.target.healthmax) {
+                            this.target.activeshield = (this.target.health - this.target.maxhealth)
+                            this.target.health = this.target.healthmax
+                        } else {
+                            this.activeshield = 0
+                        }
+                    }
+                }
                     let link = new LineOP(this.body, this.target.body, this.body.color, 5)
                     link.draw()
-                }else  if(this.counter%this.attackspeed >= (this.attackspeed-10)){
+                } else if (this.counter % this.attackspeed >= (this.attackspeed - 10)) {
                     let link = new LineOP(this.body, this.target.body, this.body.color, 5)
                     link.draw()
                 }
@@ -2035,8 +2172,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (players[t].body.doesPerimeterTouch(this.body)) {
                     const distance = ((new LineOP(this.body, players[t].body)).hypotenuse()) - (players[t].body.radius + this.body.radius)
                     const angleRadians = Math.atan2(players[t].body.y - this.body.y, players[t].body.x - this.body.x);
-                    players[t].moveto.x -= (Math.cos(angleRadians) * distance) *1.01     
-                    players[t].moveto.y -= (Math.sin(angleRadians) * distance) *1.01     
+                    players[t].moveto.x -= (Math.cos(angleRadians) * distance) * 1.01
+                    players[t].moveto.y -= (Math.sin(angleRadians) * distance) * 1.01
                     // if(players[t] == players[0]){
                     //     canvas_context.translate((Math.cos(angleRadians) * distance) / 2, (Math.sin(angleRadians) * distance) / 2)     
                     // } 
@@ -2108,8 +2245,23 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.movespeed *= .99
                             }
                         }
+                    } else if (players[t].blindmonk == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.movespeed *= .5
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                // players[t].dashtarget = players[t].body
+                                // players[t].dashstate = -1
+                                players[t].orblist[k].life = 0
+                            }
+                        }
                     }
-                    if(this.health <= 0){
+                    if (this.health <= 0) {
                         players[t].gold += this.goldvalue
                         break
                     }
@@ -2186,6 +2338,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     class Gasbag {
         constructor(x, y, color) {
+            this.locked = 0
             this.gold = 500
             this.goldvalue = 300
             this.ult = 0
@@ -2224,6 +2377,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.spawnpoint = new Point(this.body.x, this.body.y)
             this.gasbag = 1
             this.pincushion = 0
+            this.blindmonk = 0
             this.ultcost = 25
             this.ultcooldown = 0
             this.ultdrain = 1000
@@ -2341,15 +2495,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.body.ymom = 0 - (this.body.y - this.moveto.y)
 
             // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+            let k = 0
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
                 this.body.xmom *= 0.98
                 this.body.ymom *= 0.98
-
+                if (k == 10000) {
+                    break
+                } else {
+                    k++
+                }
             }
+            k = 0
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
                 this.body.xmom *= 1.02
                 this.body.ymom *= 1.02
-                // }
+                if (k == 10000) {
+                    break
+                } else {
+                    k++
+                }
             }
         }
         gamepadSkillsAdapter(to) {
@@ -2568,10 +2732,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.gluedraw()
         }
         draw() {
-            if(this == players[0]){
+            if (this == players[0]) {
                 canvas_context.fillStyle = "gold"
                 canvas_context.font = "20px arial"
-                canvas_context.fillText(`${this.gold}`, this.body.x-340, this.body.y-340)
+                canvas_context.fillText(`${this.gold}`, this.body.x - 340, this.body.y - 340)
             }
 
             if (this == players[0]) {
@@ -2648,9 +2812,25 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 players[t].traps[k].life = 0
                             }
                         }
+                    } else if (players[t].blindmonk == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].dashtarget.x = this.body.x
+                                players[t].dashtarget.y = this.body.y
+                                players[t].dashstate = 1
+                                players[t].orblist[k].life = 0
+                            }
+                        }
                     }
-                    if(this.health <= 0){
-                        players[t].gold+=this.goldvalue
+                    if (this.health <= 0) {
+                        players[t].gold += this.goldvalue
                         break
                     }
                 }
@@ -2661,9 +2841,510 @@ window.addEventListener('DOMContentLoaded', (event) => {
     }
 
 
-    let gasman = new Rectangle(100,100, 200, 100, "green")
+
+
+    class Blindmonk {
+        constructor(x, y, color) {
+            this.gold = 500
+            this.goldvalue = 300
+            this.lockholder = -1
+            this.ult = 0
+            this.body = new Circle(x, y, 10, color)
+            this.movespeedbase = 1
+            this.slamdrop = -.8
+            this.speedbonus = 0
+            this.shieldcost = 30
+            this.shieldpower = 150
+            this.shieldtimer = 100
+            this.shielddrain = 140
+            this.shieldcooldown = 0
+            this.shieldstate = 0
+            this.health = 550
+            this.healthmax = this.health
+            this.mana = 100
+            this.manamax = this.mana
+            this.moveto = {}
+            this.moveto.x = this.body.x - 1.01
+            this.moveto.y = this.body.y
+            this.moveto.radius = this.body.radius
+            this.dashtarget = {}
+            this.dashtarget.x = this.body.x
+            this.dashtarget.y = this.body.y
+            this.dashtarget.radius = 0
+            this.slamcost = 40
+            this.dashstate = -1
+            this.mps = .5
+            this.hps = .15
+            this.gluerange = 75
+            this.flippower = 150
+            this.fliprange = 50
+            this.slams = []
+            this.orblist = []
+            this.locked = 0
+            this.orbcost = 25
+            this.orbcooldown = 0
+            this.orbdamage = 50
+            this.orbdrain = 200
+            this.slamdamage = 10
+            this.slamcooldown = 0
+            this.slamdrain = 300
+            this.army = []
+            this.spawner = 0
+            this.spawnpoint = new Point(this.body.x, this.body.y)
+            this.blindmonk = 1
+            this.pincushion = 0
+            this.gasbag = 0
+            this.ultcost = 25
+            this.ultcooldown = 0
+            this.ultdrain = 1000
+            this.ultrun = 0
+        }
+        marshal() {
+            if (this.spawner % 1000 == 20) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 40) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 60) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 80) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 100) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            this.spawner++
+            this.burial()
+            this.command()
+            this.burial()
+        }
+        command() {
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].draw()
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+        }
+        burial() {
+            for (let t = 0; t < this.army.length; t++) {
+                if (this.army[t].health <= 0) {
+                    this.army.splice(t, 1)
+                }
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+
+        }
+        cooldown() {
+            this.slamcooldown--
+            this.shieldcooldown--
+            this.orbcooldown--
+            this.ultcooldown--
+            if (this.orbcooldown <= 0) {
+                this.dashstate = -1
+            }
+        }
+        regen() {
+            if (this.ultrun > 0) {
+                this.ult = 1
+            } else {
+                this.ult = 0
+            }
+            this.marshal()
+            if (this.health > 0) {
+                if (this.ult == 1) {
+                    this.mana += this.mps
+                    this.health += this.hps
+                    this.mana += this.mps
+                    this.health += this.hps
+                    this.movespeedbase = 1.8
+                } else {
+                    this.movespeedbase = 1
+                }
+                this.mana += this.mps
+                this.health += this.hps
+                if (this.health > this.healthmax) {
+                    this.health = this.healthmax
+                }
+                if (this.mana > this.manamax) {
+                    this.mana = this.manamax
+                }
+            } else {
+                this.ult = 0
+                this.ultrun = 0
+                if (this == players[0]) {
+                    canvas_context.translate(this.body.x - this.spawnpoint.x, this.body.y - this.spawnpoint.y)
+                }
+                this.health = this.healthmax
+                this.mana = this.manamax
+                this.body.y = this.spawnpoint.y
+                this.body.x = this.spawnpoint.x
+                this.moveto.x = this.body.x + 1
+                this.moveto.y = this.body.y + 1
+                this.speedbonus = 0
+            }
+            this.speedbonus *= .999
+        }
+        control(to) {
+            if (this.locked <= 0) {
+                if (this == players[0]) {
+                    // this.moveto.x = to.x
+                    // this.moveto.y = to.y
+                    this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
+                    this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
+                } else {
+                    this.moveto.x = to.x
+                    this.moveto.y = to.y
+                }
+            }
+            this.locked--
+
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+                // this.dashtarget.x = this.body.x * 1000
+                // this.dashtarget.y = this.body.y * 1000
+                // this.dashtarget.radius = 0
+                // this.body.x += 1
+                let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random(),)
+                this.moveto = mover
+                // this.body.x -= 1
+            }
+            if (this.locked == 0) {
+                this.speedbonus = 0
+            }
+        }
+        drive() {
+            if (this.locked <= 0 || this.locked == this.lockholder) {
+                this.body.xmom = 0 - (this.body.x - this.moveto.x)
+                this.body.ymom = 0 - (this.body.y - this.moveto.y)
+
+                // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+                let k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
+                    this.body.xmom *= 0.98
+                    this.body.ymom *= 0.98
+                    if (k == 10000) {
+                        break
+                    }
+                }
+                k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
+                    this.body.xmom *= 1.02
+                    this.body.ymom *= 1.02
+                    if (k == 10000) {
+                        break
+                    }
+                }
+            }
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+                // this.dashtarget.x = this.body.x * 1000
+                // this.dashtarget.y = this.body.y * 1000
+                // this.dashtarget.radius = 0
+                // this.body.x += 1
+                let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random(),)
+                this.moveto = mover
+                // this.body.x -= 1
+            }
+            if (this.locked == 0) {
+                this.speedbonus = 0
+            }
+
+        }
+        gamepadSkillsAdapter(to) {
+
+            let towards = new Point(0, 0)
+            towards.x = (Math.cos(gamepad_angles().left) * 100) + 360
+            towards.y = (Math.sin(gamepad_angles().left) * 100) + 360
+
+            let link = new LineOP(this.body, towards)
+            link.draw()
+
+            if (gamepadAPI.buttonsStatus.includes('Left-Trigger')) {
+                this.orbs(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('Right-Trigger')) {
+                towards.x = (Math.cos(gamepad_angles().left) * this.gluerange) + 360
+                towards.y = (Math.sin(gamepad_angles().left) * this.gluerange) + 360
+                this.shielder(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('RB')) {
+
+                towards.x = (Math.cos(gamepad_angles().left) * this.fliprange) + this.body.x
+                towards.y = (Math.sin(gamepad_angles().left) * this.fliprange) + this.body.y
+                this.slam(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('LB')) {
+                this.ulting(towards)
+            }
+        }
+        skillsAdapter(to) {
+            if (this == players[0]) {
+                if (keysPressed['q']) {
+                    this.orbs(to)
+                }
+                if (keysPressed['w']) {
+                    this.shielder(to)
+                }
+                if (keysPressed['e']) {
+                    this.slam(to)
+                }
+                if (keysPressed['r']) {
+                    this.ulting(to)
+                }
+            } else {
+                let fuzz = {}
+                fuzz.x = ((Math.random() - .5) * 10) + players[0].body.x
+                fuzz.y = ((Math.random() - .5) * 10) + players[0].body.y
+                this.ulting(fuzz)
+                this.slam(fuzz)
+
+                if (this.mana > this.flipcost + Math.max(this.gascost, this.gluecost)) {
+                    if (Math.random() < .003) {
+                        if (this.health < this.maxhealth - this.flippower) {
+                            this.shielder(fuzz)
+                        }
+                    }
+                }
+                // fuzz.x = ((Math.random() - .5) * this.gluerange * .7) + this.body.x
+                // fuzz.y = ((Math.random() - .5) * this.gluerange * .7) + this.body.y
+                if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
+                    if (Math.random() < .005) {
+                        this.orbs(fuzz)
+                    } else if (this.health > this.healthmax * .5) {
+                        if (this.dashstate == 0) {
+                            this.orbs(fuzz)
+                        }
+                    }
+                }
+            }
+
+        }
+        slam(to) {
+            if (this.mana >= this.slamcost) {
+                if (this.slamcooldown <= 0) {
+                    let pin = new Slam(this.body, to, this)
+                    this.slams.push(pin)
+                    this.slamcooldown = this.slamdrain
+                    this.mana -= this.slamcost
+                }
+            }
+
+        }
+        slamdraw() {
+            for (let t = 0; t < this.slams.length; t++) {
+                this.slams[t].move()
+                this.slams[t].draw()
+                this.slams[t].life -= .2
+            }
+            for (let t = 0; t < this.slams.length; t++) {
+                if (this.slams[t].life <= 0) {
+                    this.slams.splice(t, 1)
+                }
+            }
+
+        }
+        ulting(to) {
+            if (this.mana >= this.ultcost) {
+                if (this.ultcooldown <= 0) {
+
+                }
+            }
+        }
+        shielder(to) {
+            if (this.mana >= this.shieldcost) {
+                if (this.shieldcooldown <= 0) {
+                    this.activeshield = this.shieldpower
+                    this.shieldcooldown = this.shielddrain
+                }
+            }
+        }
+        orbs(to) {
+
+            if (this.orbcooldown <= 0) {
+                if (this.dashstate == -1) {
+                    if (this.mana > this.orbcost) {
+                        if (this.orbcooldown <= 0) {
+                            let pin = new Orb(this.body, to, this)
+                            this.orblist.push(pin)
+                            this.mana -= this.orbcost
+                            this.orbcooldown = this.orbdrain
+                            this.dashstate = 0
+                        }
+                    }
+                }
+            }
+            if (this.dashstate == 1) {
+                // if(this.dashtarget.health > 0){
+                this.moveto = this.dashtarget
+                this.speedbonus = 7
+                this.mana -= this.orbcost
+                let link = new LineOP(this.body, this.dashtarget)
+                this.locked = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                this.lockholder = this.locked
+                this.dashstate = 0
+                // }else{
+                //     this.dashstate = 0
+                // }
+            }
+        }
+        orbdraw() {
+            for (let t = 0; t < this.orblist.length; t++) {
+                this.orblist[t].move()
+                this.orblist[t].draw()
+                this.orblist[t].life -= 1
+            }
+            for (let t = 0; t < this.orblist.length; t++) {
+                if (this.orblist[t].life <= 0) {
+                    this.orblist.splice(t, 1)
+                }
+            }
+        }
+        draw() {
+            if (this == players[0]) {
+                canvas_context.fillStyle = "gold"
+                canvas_context.font = "20px arial"
+                canvas_context.fillText(`${this.gold}`, this.body.x - 340, this.body.y - 340)
+            }
+
+            if (this == players[0]) {
+                let towards = new Point(0, 0)
+                if (players[0].pincushion == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 100) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 100) + this.body.y
+                } else if (players[0].gasbag == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 50) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 50) + this.body.y
+                } else if (players[0].blindmonk == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 100) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 100) + this.body.y
+                }
+
+                let link = new LineOP(this.body, towards, "white", 1)
+                link.draw()
+            }
+
+            this.regen()
+            this.drive()
+            let check = new LineOP(this.moveto, this.body)
+            if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
+                this.body.move()
+            }
+
+            if (keysPressed['e']) {
+                if (this == players[0]) {
+                    let circ = new Circle(this.body.x, this.body.y, this.gluerange, "black")
+                    canvas_context.strokeStyle = circ.color
+                    canvas_context.beginPath()
+                    canvas_context.arc(circ.x, circ.y, circ.radius, 0, Math.PI * 2, true)
+                    canvas_context.stroke()
+                    canvas_context.closePath()
+                }
+            }
+            this.body.draw()
+            if (this.activeshield > 0) {
+                let shield = new Circle(this.body.x, this.body.y, (this.activeshield * .020), "yellow")
+                shield.draw()
+            }
+            this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "green")
+            this.healthbar.width = (this.health / this.healthmax) * this.body.radius * 2
+            this.manabar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 1.6), this.body.radius * 2, this.body.radius * .25, "red")
+            this.manabar.width = (this.mana / this.manamax) * this.body.radius * 2
+            this.healthbar.draw()
+            this.manabar.draw()
+            this.slamdraw()
+            this.orbdraw()
+            this.cooldown()
+            this.collide()
+        }
+        collide() {
+            let dummy = this.health
+            for (let t = 0; t < players.length; t++) {
+                if (this != players[t]) {
+                    if (players[t].gasbag == 1) {
+                        for (let k = 0; k < players[t].gasses.length; k++) {
+                            if (players[t].gasses[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].gasdamage)
+                            }
+                        }
+                        for (let k = 0; k < players[t].glues.length; k++) {
+                            if (players[t].glues[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].gluedamage)
+                                this.speedbonus = players[t].gluedrop
+                            }
+                        }
+                    } else if (players[t].pincushion == 1) {
+                        for (let k = 0; k < players[t].spears.length; k++) {
+                            if (players[t].spears[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                                players[t].spears[k].life = 0
+                            } else if (players[t].spears[k].shaft.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                                players[t].spears[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].traps.length; k++) {
+                            if (players[t].traps[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].trapdamage)
+                                this.speedbonus = players[t].trapdrop
+                                players[t].traps[k].life = 0
+                            }
+                        }
+                    } else if (players[t].blindmonk == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].dashtarget.x = this.body.x
+                                players[t].dashtarget.y = this.body.y
+                                players[t].dashstate = 1
+                                players[t].orblist[k].life = 0
+                            }
+                        }
+                    }
+                    if (this.health <= 0) {
+                        players[t].gold += this.goldvalue
+                        break
+                    }
+                }
+            }
+            if (dummy > this.health) {
+                if (this.activeshield > 0) {
+                    this.health += this.activeshield
+                    if (this.health > this.healthmax) {
+                        this.activeshield = (this.health - this.maxhealth)
+                        this.health = this.healthmax
+                    } else {
+                        this.activeshield = 0
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    let gasman = new Rectangle(100, 100, 200, 100, "green")
 
     let pingirl = new Rectangle(300, 100, 200, 100, "pink")
+    let blindmonk = new Rectangle(100, 200, 200, 100, "grey")
 
     let player = new Pincushion(360, 360, "magenta")
     let enemy = new Pincushion(360, -500, "cyan")
@@ -2686,20 +3367,23 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let count = 0
 
 
-    let tower = new Tower(player.body.x - 140, player.body.y - 170, player)
+    let tower = new Tower(player.body.x - 110, player.body.y - 170, player)
     player.army.push(tower)
-    let tower2 = new Tower(enemy.body.x + 140, enemy.body.y + 170, enemy)
+    let tower2 = new Tower(enemy.body.x + 110, enemy.body.y + 170, enemy)
     enemy.army.push(tower2)
 
     let selected = 0
 
     function main() {
         gamepadAPI.update()
-        if(selected >= 2){
+        if (selected >= 2) {
 
             players[0].gamepadSkillsAdapter(new Point(0, 0))
             // console.log(gamepad_angles())
-            gamepad_control(players[0], players[0].movespeedbase + players[0].speedbonus)
+            if (players[0].locked <= 0) {
+                gamepad_control(players[0], players[0].movespeedbase + players[0].speedbonus)
+            }
+
             if (paused == -1) {
             } else {
                 canvas_context.clearRect(-10000, -10000, canvas.width * 100, canvas.height * 100)  // refreshes the image
@@ -2711,7 +3395,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 rock2.draw()
                 beam1 = castBetween(rock1, rock2, 23, 100)
                 beam2 = castBetween(rock3, rock4, 23, 100)
-    
+
                 for (let t = 0; t < players.length; t++) {
                     for (let k = 0; k < players.length; k++) {
                         if (players[t] != players[k]) {
@@ -2743,7 +3427,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         players[t].gluedrawstager()
                     }
                 }
-    
+
                 for (let t = 0; t < players.length; t++) {
                     players[t].draw()
                     if (beam1.isPointInside(players[t].body) || beam2.isPointInside(players[t].body) || base1.body.isPointInside(players[t].body) || base2.body.isPointInside(players[t].body)) {
@@ -2756,16 +3440,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         players[t].body.x += .001
                     }
                 }
-    
-    
-    
+
+
+
                 let object = {}
                 object.x = players[1].body.x + ((Math.random() - .5) * 120)
                 object.y = players[1].body.y + ((Math.random() - .5) * 120)
                 count++
                 players[1].skillsAdapter(object)
                 if (count % 40 == 0) {
-    
+
                     let object = {}
                     object.x = ((Math.random() - .5) * 120) + players[1].body.x
                     object.y = ((Math.random() - .5) * 120) + players[1].body.y
@@ -2775,7 +3459,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                     players[1].control(object)
                 }
-    
+
                 for (let t = 0; t < players.length; t++) {
                     for (let k = 0; k < players[t].army.length; k++) {
                         players[t].army[k].drawbar()
@@ -2783,30 +3467,36 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
 
-        }else{
-            if(selected == 0){
+        } else {
+            if (selected == 0) {
                 canvas_context.clearRect(-10000, -10000, canvas.width * 100, canvas.height * 100)  // refreshes the image
                 canvas_context.fillStyle = "Gold"
                 canvas_context.font = "20px arial"
-                canvas_context.fillText(`Select your class`, 250, 75)      
-                gasman.draw() 
+                canvas_context.fillText(`Select your class`, 250, 75)
+                gasman.draw()
                 canvas_context.fillStyle = "Gold"
-                canvas_context.fillText(`Gasman`, gasman.x+50, gasman.y+50)       
-                pingirl.draw() 
+                canvas_context.fillText(`Gasman`, gasman.x + 50, gasman.y + 50)
+                pingirl.draw()
                 canvas_context.fillStyle = "black"
-                canvas_context.fillText(`Pingirl`, pingirl.x+50, pingirl.y+50)       
-            }else if(selected == 1){
+                canvas_context.fillText(`Pingirl`, pingirl.x + 50, pingirl.y + 50)
+                blindmonk.draw()
+                canvas_context.fillStyle = "black"
+                canvas_context.fillText(`Blindmonk`, blindmonk.x + 50, blindmonk.y + 50)
+            } else if (selected == 1) {
                 canvas_context.clearRect(-10000, -10000, canvas.width * 100, canvas.height * 100)  // refreshes the image
                 canvas_context.fillStyle = "Red"
                 canvas_context.font = "20px arial"
                 canvas_context.fillText(`Select enemy class`, 250, 75)
-                gasman.draw() 
+                gasman.draw()
                 canvas_context.fillStyle = "Gold"
-                canvas_context.fillText(`Gasman`, gasman.x+50, gasman.y+50)        
-                pingirl.draw() 
+                canvas_context.fillText(`Gasman`, gasman.x + 50, gasman.y + 50)
+                pingirl.draw()
                 canvas_context.fillStyle = "black"
-                canvas_context.fillText(`Pingirl`, pingirl.x+50, pingirl.y+50)       
+                canvas_context.fillText(`Pingirl`, pingirl.x + 50, pingirl.y + 50)
+                blindmonk.draw()
+                canvas_context.fillStyle = "black"
+                canvas_context.fillText(`Blindmonk`, blindmonk.x + 50, blindmonk.y + 50)
+            }
         }
     }
-}
 })
