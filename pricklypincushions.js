@@ -842,6 +842,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     let tower = new Tower(players[0].body.x - 110, players[0].body.y - 170, players[0])
                     players[0].army.push(tower)
                 }
+                if (robofister.isPointInside(TIP_engine)) {
+                    selected++
+                    players[0] = new Robofister(360, 360, "magenta")
+                    players[0].base = base1
+                    let tower = new Tower(players[0].body.x - 110, players[0].body.y - 170, players[0])
+                    players[0].army.push(tower)
+                }
 
             } else if (selected == 1) {
                 if (gasman.isPointInside(TIP_engine)) {
@@ -861,6 +868,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (blindmonk.isPointInside(TIP_engine)) {
                     selected++
                     players[1] = new Blindmonk(360, -500, "cyan")
+                    players[1].base = base2
+                    let tower = new Tower(players[1].body.x + 110, players[1].body.y + 170, players[1])
+                    players[1].army.push(tower)
+                }
+                if (robofister.isPointInside(TIP_engine)) {
+                    selected++
+                    players[1] = new Robofister(360, -500, "cyan")
                     players[1].base = base2
                     let tower = new Tower(players[1].body.x + 110, players[1].body.y + 170, players[1])
                     players[1].army.push(tower)
@@ -1329,6 +1343,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
 
     }
+    class RoboSlam {
+        constructor(from, to, owner) {
+
+            this.life = 5
+            this.body = new Circle(from.x, from.y, 100, "#00AAFF88")
+
+        }
+        draw() {
+            this.body.draw()
+        }
+        move() {
+            this.body.move()
+        }
+
+    }
 
     class Pin {
         constructor(from, to, owner) {
@@ -1436,8 +1465,61 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
     }
+
+    class Hook {
+        constructor(from, to, owner) {
+            this.body = new Circle(from.x, from.y, 9, "purple", 0, 0)
+            this.life = 30
+            if (owner == players[0]) {
+                to.x = this.body.x + (to.x - (canvas.width * .5))
+                to.y = this.body.y + (to.y - (canvas.height * .5))
+                this.body.color = "#00ff00"
+            } else {
+                this.body.color = "#FF0000"
+            }
+
+            this.owner = owner
+
+            this.body.xmom = 0 - (this.body.x - to.x)
+            this.body.ymom = 0 - (this.body.y - to.y)
+
+            let k = 0
+            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > 8.5) {
+                this.body.xmom *= 0.98
+                this.body.ymom *= 0.98
+                k++
+                if (k > 1000) {
+                    break
+                }
+
+            }
+            k = 0
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < 8.5) {
+                this.body.xmom *= 1.02
+                this.body.ymom *= 1.02
+
+                k++
+                if (k > 1000) {
+                    break
+                }
+            }
+            // }
+        }
+        draw() {
+            this.link = new LineOP(this.body, this.owner.body, this.body.color, 2)
+            this.link.draw()
+            this.body.draw()
+        }
+        move() {
+            this.body.move()
+        }
+
+
+    }
     class Pincushion {
         constructor(x, y, color) {
+            this.dashtarget = {}
             this.locked = 0
             this.gold = 500
             this.goldvalue = 300
@@ -1474,6 +1556,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.spawnpoint = new Point(this.body.x, this.body.y)
             this.gasbag = 0
             this.blindmonk = 0
+            this.robofister = 0
             this.pincushion = 1
         }
         marshal() {
@@ -1554,14 +1637,31 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.speedbonus *= .997
         }
         control(to) {
-            if (this == players[0]) {
-                this.moveto.x = to.x
-                this.moveto.y = to.y
-                // this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
-                // this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
-            } else {
-                this.moveto.x = to.x
-                this.moveto.y = to.y
+            if (this.locked <= 0) {
+                if (this == players[0]) {
+                    // this.moveto.x = to.x
+                    // this.moveto.y = to.y
+                    this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
+                    this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
+                } else {
+                    this.moveto.x = to.x
+                    this.moveto.y = to.y
+                }
+            }
+            this.locked--
+
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+                // this.dashtarget.x = this.body.x * 1000
+                // this.dashtarget.y = this.body.y * 1000
+                // this.dashtarget.radius = 0
+                // this.body.x += 1
+                let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random(),)
+                this.moveto = mover
+                // this.body.x -= 1
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
             }
         }
         drive() {
@@ -1763,6 +1863,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let check = new LineOP(this.moveto, this.body)
             if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
                 this.body.move()
+            }else if(this.locked > 0){
+                this.body.move()
             }
             this.trapdraw()
 
@@ -1833,6 +1935,30 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 players[t].dashtarget.y = this.body.y
                                 players[t].dashstate = 1
                                 players[t].orblist[k].life = 0
+                            }
+                        }
+                    }else if (players[t].robofister == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x 
+                                this.dashtarget.y = players[t].body.y 
+                                this.moveto.x = players[t].body.x 
+                                this.moveto.y = players[t].body.y 
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = 7
+                                let link = new LineOP(this.body, this.dashtarget)
+                                let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                                console.log(this)
                             }
                         }
                     }
@@ -1945,6 +2071,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         }
                     }
                 }
+                if(this.speedbonus > 0){
+                    this.speedbonus  *=.5
+                }
             }
         }
         repel() {
@@ -2038,6 +2167,28 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 players[t].dashtarget.y = this.body.y
                                 players[t].dashstate = 1
                                 players[t].orblist[k].life = 0
+                            }
+                        }
+                    }else if (players[t].robofister == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.body.x = players[t].body.x
+                                this.body.y = players[t].body.y
+                                // this.target = players[t]
+                                // this.speedbonus = 7
+                                // let link = new LineOP(this.body, this.dashtarget)
+                                // let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                                // this.locked = Math.round(hookdot)
+                                // this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                                // console.log(this)
                             }
                         }
                     }
@@ -2285,6 +2436,30 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 players[t].orblist[k].life = 0
                             }
                         }
+                    }else if (players[t].robofister == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                // this.dashtarget.x = players[t].body.x 
+                                // this.dashtarget.y = players[t].body.y 
+                                // this.moveto.x = players[t].body.x 
+                                // this.moveto.y = players[t].body.y 
+                                // this.moveto.radius = players[t].body.radius
+                                // this.speedbonus = 7
+                                // let link = new LineOP(this.body, this.dashtarget)
+                                // let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                                // this.locked = Math.round(hookdot)
+                                // this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                                // console.log(this)
+                            }
+                        }
                     }
                     if (this.health <= 0) {
                         players[t].gold += this.goldvalue
@@ -2363,6 +2538,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     class Gasbag {
         constructor(x, y, color) {
+            this.dashtarget = {}
             this.locked = 0
             this.gold = 500
             this.goldvalue = 300
@@ -2401,6 +2577,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.spawner = 0
             this.spawnpoint = new Point(this.body.x, this.body.y)
             this.gasbag = 1
+            this.robofister = 0
             this.pincushion = 0
             this.blindmonk = 0
             this.ultcost = 25
@@ -2505,14 +2682,31 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.speedbonus *= .999
         }
         control(to) {
-            if (this == players[0]) {
-                // this.moveto.x = to.x
-                // this.moveto.y = to.y
-                this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
-                this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
-            } else {
-                this.moveto.x = to.x
-                this.moveto.y = to.y
+            if (this.locked <= 0) {
+                if (this == players[0]) {
+                    // this.moveto.x = to.x
+                    // this.moveto.y = to.y
+                    this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
+                    this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
+                } else {
+                    this.moveto.x = to.x
+                    this.moveto.y = to.y
+                }
+            }
+            this.locked--
+
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+                // this.dashtarget.x = this.body.x * 1000
+                // this.dashtarget.y = this.body.y * 1000
+                // this.dashtarget.radius = 0
+                // this.body.x += 1
+                let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random(),)
+                this.moveto = mover
+                // this.body.x -= 1
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
             }
         }
         drive() {
@@ -2787,6 +2981,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let check = new LineOP(this.moveto, this.body)
             if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
                 this.body.move()
+            }else if(this.locked > 0){
+                this.body.move()
             }
 
             if (keysPressed['e']) {
@@ -2858,6 +3054,30 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 players[t].orblist[k].life = 0
                             }
                         }
+                    }else if (players[t].robofister == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x 
+                                this.dashtarget.y = players[t].body.y 
+                                this.moveto.x = players[t].body.x 
+                                this.moveto.y = players[t].body.y 
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = 7
+                                let link = new LineOP(this.body, this.dashtarget)
+                                let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                                console.log(this)
+                            }
+                        }
                     }
                     if (this.health <= 0) {
                         players[t].gold += this.goldvalue
@@ -2922,6 +3142,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.spawner = 0
             this.spawnpoint = new Point(this.body.x, this.body.y)
             this.blindmonk = 1
+            this.robofister = 0
             this.pincushion = 0
             this.gasbag = 0
             this.ultcost = 25
@@ -3051,7 +3272,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.moveto = mover
                 // this.body.x -= 1
             }
-            if (this.locked == 0) {
+            if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
         }
@@ -3088,7 +3309,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.moveto = mover
                 // this.body.x -= 1
             }
-            if (this.locked == 0) {
+            if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
 
@@ -3271,6 +3492,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
             let check = new LineOP(this.moveto, this.body)
             if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
                 this.body.move()
+            }else if(this.locked > 0){
+                this.body.move()
             }
 
             if (keysPressed['e']) {
@@ -3348,6 +3571,551 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 players[t].orblist[k].life = 0
                             }
                         }
+                    }else if (players[t].robofister == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x 
+                                this.dashtarget.y = players[t].body.y 
+                                this.moveto.x = players[t].body.x 
+                                this.moveto.y = players[t].body.y 
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = 7
+                                let link = new LineOP(this.body, this.dashtarget)
+                                let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                                console.log(this)
+                            }
+                        }
+                    }
+                    if (this.health <= 0) {
+                        players[t].gold += this.goldvalue
+                        break
+                    }
+                }
+            }
+
+
+            if (dummy > this.health) {
+                if (this.activeshield > 0) {
+                    if (this.activeshield >= dummy - this.health) {
+                        this.activeshield -= dummy - this.health
+                        this.health = dummy
+                    } else {
+                        this.health += this.activeshield
+                        this.activeshield = 0
+                    }
+                }
+            }
+        }
+
+    }
+
+    class Robofister {
+        constructor(x, y, color) {
+            this.gold = 500
+            this.goldvalue = 300
+            this.lockholder = -1
+            this.ult = 0
+            this.body = new Circle(x, y, 10, color)
+            this.movespeedbase = 1
+            this.slamdrop = -.8
+            this.speedbonus = 0
+            this.shieldcost = 30
+            this.shieldpower = 150
+            this.shieldtimer = 100
+            this.shielddrain = 140
+            this.shieldcooldown = 0
+            this.shieldstate = 0
+            this.health = 550
+            this.healthmax = this.health
+            this.mana = 100
+            this.manamax = this.mana
+            this.moveto = {}
+            this.moveto.x = this.body.x - 1.01
+            this.moveto.y = this.body.y
+            this.moveto.radius = this.body.radius
+            this.dashtarget = {}
+            this.dashtarget.x = this.body.x
+            this.dashtarget.y = this.body.y
+            this.dashtarget.radius = 0
+            this.slamcost = 40
+            this.dashstate = -1
+            this.mps = .5
+            this.hps = .15
+            this.gluerange = 75
+            this.flippower = 150
+            this.fliprange = 50
+            this.slams = []
+            this.hooklist = []
+            this.locked = 0
+            this.hookcost = 25
+            this.hookcooldown = 0
+            this.hookdamage = 50
+            this.hookdrain = 200
+            this.slamdamage = 10
+            this.slamcooldown = 0
+            this.slamdrain = 300
+            this.army = []
+            this.spawner = 0
+            this.spawnpoint = new Point(this.body.x, this.body.y)
+            this.blindmonk = 0
+            this.pincushion = 0
+            this.gasbag = 0
+            this.robofister = 1
+            this.ultcost = 25
+            this.ultcooldown = 0
+            this.ultdrain = 1000
+
+            this.speedboost = 0
+            this.ultrun = 0
+        }
+        marshal() {
+            if (this.spawner % 1000 == 20) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 40) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 60) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 80) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 100) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            this.spawner++
+            this.burial()
+            this.command()
+            this.burial()
+        }
+        command() {
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].draw()
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+        }
+        burial() {
+            for (let t = 0; t < this.army.length; t++) {
+                if (this.army[t].health <= 0) {
+                    this.army.splice(t, 1)
+                }
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+
+        }
+        cooldown() {
+            this.slamcooldown--
+            this.shieldcooldown--
+            this.hookcooldown--
+            this.ultcooldown--
+            if (this.hookcooldown <= 0) {
+                this.dashstate = -1
+            }
+        }
+        regen() {
+            if (this.ultrun > 0) {
+                this.ult = 1
+            } else {
+                this.ult = 0
+            }
+            this.marshal()
+            if (this.health > 0) {
+                if (this.ult == 1) {
+                    this.mana += this.mps
+                    this.health += this.hps
+                    this.mana += this.mps
+                    this.health += this.hps
+                    this.movespeedbase = 1.8
+                } else {
+                    this.movespeedbase = 1
+                }
+                this.mana += this.mps
+                this.health += this.hps
+                if (this.health > this.healthmax) {
+                    this.health = this.healthmax
+                }
+                if (this.mana > this.manamax) {
+                    this.mana = this.manamax
+                }
+            } else {
+                this.ult = 0
+                this.ultrun = 0
+                if (this == players[0]) {
+                    canvas_context.translate(this.body.x - this.spawnpoint.x, this.body.y - this.spawnpoint.y)
+                }
+                this.health = this.healthmax
+                this.mana = this.manamax
+                this.body.y = this.spawnpoint.y
+                this.body.x = this.spawnpoint.x
+                this.moveto.x = this.body.x + 1
+                this.moveto.y = this.body.y + 1
+                this.speedbonus = 0
+            }
+            this.speedbonus *= .999
+        }
+        control(to) {
+            if (this.locked <= 0) {
+                if (this == players[0]) {
+                    // this.moveto.x = to.x
+                    // this.moveto.y = to.y
+                    this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
+                    this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
+                } else {
+                    this.moveto.x = to.x
+                    this.moveto.y = to.y
+                }
+            }
+            this.locked--
+
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+                // this.dashtarget.x = this.body.x * 1000
+                // this.dashtarget.y = this.body.y * 1000
+                // this.dashtarget.radius = 0
+                // this.body.x += 1
+                let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random(),)
+                this.moveto = mover
+                // this.body.x -= 1
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
+            }
+        }
+        drive() {
+            if (this.locked <= 0 || this.locked == this.lockholder) {
+                this.body.xmom = 0 - (this.body.x - this.moveto.x)
+                this.body.ymom = 0 - (this.body.y - this.moveto.y)
+
+                // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+                let k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus + this.speedboost)) {
+                    this.body.xmom *= 0.98
+                    this.body.ymom *= 0.98
+                    if (k == 10000) {
+                        break
+                    }
+                }
+                k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus + this.speedboost)) {
+                    this.body.xmom *= 1.02
+                    this.body.ymom *= 1.02
+                    if (k == 10000) {
+                        break
+                    }
+                }
+            }
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+                // this.dashtarget.x = this.body.x * 1000
+                // this.dashtarget.y = this.body.y * 1000
+                // this.dashtarget.radius = 0
+                // this.body.x += 1
+                let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random(),)
+                this.moveto = mover
+                // this.body.x -= 1
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
+            }
+
+            this.speedboost*=.995
+        }
+        gamepadSkillsAdapter(to) {
+
+            let towards = new Point(0, 0)
+            towards.x = (Math.cos(gamepad_angles().left) * 100) + 360
+            towards.y = (Math.sin(gamepad_angles().left) * 100) + 360
+
+            let link = new LineOP(this.body, towards)
+            link.draw()
+
+            if (gamepadAPI.buttonsStatus.includes('Left-Trigger')) {
+                this.hooks(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('Right-Trigger')) {
+                towards.x = (Math.cos(gamepad_angles().left) * this.gluerange) + 360
+                towards.y = (Math.sin(gamepad_angles().left) * this.gluerange) + 360
+                this.shielder(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('RB')) {
+
+                towards.x = (Math.cos(gamepad_angles().left) * this.fliprange) + this.body.x
+                towards.y = (Math.sin(gamepad_angles().left) * this.fliprange) + this.body.y
+                this.slam(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('LB')) {
+                this.ulting(towards)
+            }
+        }
+        skillsAdapter(to) {
+            if (this == players[0]) {
+                if (keysPressed['q']) {
+                    this.hooks(to)
+                }
+                if (keysPressed['w']) {
+                    this.shielder(to)
+                }
+                if (keysPressed['e']) {
+                    this.slam(to)
+                }
+                if (keysPressed['r']) {
+                    this.ulting(to)
+                }
+            } else {
+                let fuzz = {}
+                fuzz.x = ((Math.random() - .5) * 10) + players[0].body.x
+                fuzz.y = ((Math.random() - .5) * 10) + players[0].body.y
+                this.ulting(fuzz)
+                this.slam(fuzz)
+
+                if (this.mana > this.flipcost + Math.max(this.gascost, this.gluecost)) {
+                    if (Math.random() < .003) {
+                        if (this.health < this.maxhealth - this.flippower) {
+                            this.shielder(fuzz)
+                        }
+                    }
+                }
+                // fuzz.x = ((Math.random() - .5) * this.gluerange * .7) + this.body.x
+                // fuzz.y = ((Math.random() - .5) * this.gluerange * .7) + this.body.y
+                if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
+                    if (Math.random() < .005) {
+                        this.hooks(fuzz)
+                    } else if (this.health > this.healthmax * .5) {
+                        if (this.dashstate == 0) {
+                            this.hooks(fuzz)
+                        }
+                    }
+                }
+            }
+
+        }
+        ulting(to) {
+            if (this.mana >= this.slamcost) {
+                if (this.slamcooldown <= 0) {
+                    let pin = new RoboSlam(this.body, to, this)
+                    this.slams.push(pin)
+                    this.slamcooldown = this.slamdrain
+                    this.mana -= this.slamcost
+                }
+            }
+
+        }
+        slamdraw() {
+            for (let t = 0; t < this.slams.length; t++) {
+                this.slams[t].move()
+                this.slams[t].draw()
+                this.slams[t].life -= .2
+            }
+            for (let t = 0; t < this.slams.length; t++) {
+                if (this.slams[t].life <= 0) {
+                    this.slams.splice(t, 1)
+                }
+            }
+
+        }
+        slam(to) {
+            if (this.mana >= this.ultcost) {
+                if (this.ultcooldown <= 0) {
+                    this.speedboost = 2
+                    this.mana-=this.ultcost
+                    this.ultcooldown -= this.ultdrain
+                }
+            }
+        }
+        shielder(to) {
+            if (this.mana >= this.shieldcost) {
+                if (this.shieldcooldown <= 0) {
+                    this.activeshield = this.shieldpower
+                    this.shieldcooldown = this.shielddrain
+                }
+            }
+        }
+        hooks(to) {
+
+            if (this.hookcooldown <= 0) {
+                if (this.dashstate == -1) {
+                    if (this.mana > this.hookcost) {
+                        if (this.hookcooldown <= 0) {
+                            let pin = new Hook(this.body, to, this)
+                            this.hooklist.push(pin)
+                            this.mana -= this.hookcost
+                            this.hookcooldown = this.hookdrain
+                            this.dashstate = 0
+                        }
+                    }
+                }
+            }
+        }
+        hookdraw() {
+            for (let t = 0; t < this.hooklist.length; t++) {
+                this.hooklist[t].move()
+                this.hooklist[t].draw()
+                this.hooklist[t].life -= 1
+            }
+            for (let t = 0; t < this.hooklist.length; t++) {
+                if (this.hooklist[t].life <= 0) {
+                    this.hooklist.splice(t, 1)
+                }
+            }
+        }
+        draw() {
+            if (this == players[0]) {
+                canvas_context.fillStyle = "gold"
+                canvas_context.font = "20px arial"
+                canvas_context.fillText(`${this.gold}`, this.body.x - 340, this.body.y - 340)
+            }
+
+            if (this == players[0]) {
+                let towards = new Point(0, 0)
+                if (players[0].pincushion == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 100) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 100) + this.body.y
+                } else if (players[0].gasbag == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 50) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 50) + this.body.y
+                } else if (players[0].blindmonk == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 100) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 100) + this.body.y
+                } else if (players[0].robofister == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 200) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 200) + this.body.y
+                }
+
+                let link = new LineOP(this.body, towards, "white", 1)
+                link.draw()
+            }
+
+            this.regen()
+            this.drive()
+            let check = new LineOP(this.moveto, this.body)
+            if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
+                this.body.move()
+            }else if(this.locked > 0){
+                this.body.move()
+            }
+
+            if (keysPressed['e']) {
+                if (this == players[0]) {
+                    let circ = new Circle(this.body.x, this.body.y, this.gluerange, "black")
+                    canvas_context.strokeStyle = circ.color
+                    canvas_context.beginPath()
+                    canvas_context.arc(circ.x, circ.y, circ.radius, 0, Math.PI * 2, true)
+                    canvas_context.stroke()
+                    canvas_context.closePath()
+                }
+            }
+            this.body.draw()
+            if (this.activeshield > 0) {
+                let shield = new Circle(this.body.x, this.body.y, (this.activeshield * .020), "yellow")
+                shield.draw()
+            }
+            this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "green")
+            this.healthbar.width = (this.health / this.healthmax) * this.body.radius * 2
+            this.manabar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 1.6), this.body.radius * 2, this.body.radius * .25, "red")
+            this.manabar.width = (this.mana / this.manamax) * this.body.radius * 2
+            this.healthbar.draw()
+            this.manabar.draw()
+            this.slamdraw()
+            this.hookdraw()
+            this.cooldown()
+            this.collide()
+        }
+        collide() {
+            let dummy = this.health
+            for (let t = 0; t < players.length; t++) {
+                if (this != players[t]) {
+                    if (players[t].gasbag == 1) {
+                        for (let k = 0; k < players[t].gasses.length; k++) {
+                            if (players[t].gasses[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].gasdamage)
+                            }
+                        }
+                        for (let k = 0; k < players[t].glues.length; k++) {
+                            if (players[t].glues[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].gluedamage)
+                                this.speedbonus = players[t].gluedrop
+                            }
+                        }
+                    } else if (players[t].pincushion == 1) {
+                        for (let k = 0; k < players[t].spears.length; k++) {
+                            if (players[t].spears[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                                players[t].spears[k].life = 0
+                            } else if (players[t].spears[k].shaft.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                                players[t].spears[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].traps.length; k++) {
+                            if (players[t].traps[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].trapdamage)
+                                this.speedbonus = players[t].trapdrop
+                                players[t].traps[k].life = 0
+                            }
+                        }
+                    } else if (players[t].blindmonk == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                players[t].dashtarget.x = this.body.x
+                                players[t].dashtarget.y = this.body.y
+                                players[t].dashstate = 1
+                                players[t].orblist[k].life = 0
+                            }
+                        }
+                    } else if (players[t].robofister == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x 
+                                this.dashtarget.y = players[t].body.y 
+                                this.moveto.x = players[t].body.x 
+                                this.moveto.y = players[t].body.y 
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = 7
+                                let link = new LineOP(this.body, this.dashtarget)
+                                let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                                console.log(this)
+                            }
+                        }
                     }
                     if (this.health <= 0) {
                         players[t].gold += this.goldvalue
@@ -3377,6 +4145,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     let pingirl = new Rectangle(300, 100, 200, 100, "pink")
     let blindmonk = new Rectangle(100, 200, 200, 100, "grey")
+    let robofister = new Rectangle(300, 200, 200, 100, "brown")
 
     let player = new Pincushion(360, 360, "magenta")
     let enemy = new Pincushion(360, -500, "cyan")
@@ -3514,6 +4283,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 blindmonk.draw()
                 canvas_context.fillStyle = "black"
                 canvas_context.fillText(`Blindmonk`, blindmonk.x + 50, blindmonk.y + 50)
+                robofister.draw()
+                canvas_context.fillStyle = "gold"
+                canvas_context.fillText(`Robofister`, robofister.x + 50, robofister.y + 50)
             } else if (selected == 1) {
                 canvas_context.clearRect(-10000, -10000, canvas.width * 100, canvas.height * 100)  // refreshes the image
                 canvas_context.fillStyle = "Red"
@@ -3528,6 +4300,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 blindmonk.draw()
                 canvas_context.fillStyle = "black"
                 canvas_context.fillText(`Blindmonk`, blindmonk.x + 50, blindmonk.y + 50)
+                robofister.draw()
+                canvas_context.fillStyle = "gold"
+                canvas_context.fillText(`Robofister`, robofister.x + 50, robofister.y + 50)
             }
         }
     }
