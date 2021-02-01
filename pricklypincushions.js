@@ -1347,16 +1347,27 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             this.body.xmom = 0 - (this.body.x - to.x)
             this.body.ymom = 0 - (this.body.y - to.y)
+            let k = 0
 
             // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > 4.5) {
                 this.body.xmom *= 0.98
                 this.body.ymom *= 0.98
 
+                k++
+                if(k>1000){
+                    break
+                }
             }
+            k = 0
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < 4.5) {
                 this.body.xmom *= 1.02
                 this.body.ymom *= 1.02
+
+                k++
+                if(k>1000){
+                    break
+                }
             }
             // }
         }
@@ -1393,15 +1404,26 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.body.xmom = 0 - (this.body.x - to.x)
             this.body.ymom = 0 - (this.body.y - to.y)
 
+            let k = 0
             // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > 5.5) {
                 this.body.xmom *= 0.98
                 this.body.ymom *= 0.98
+                k++
+                if(k>1000){
+                    break
+                }
 
             }
+            k = 0
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < 5.5) {
                 this.body.xmom *= 1.02
                 this.body.ymom *= 1.02
+
+                k++
+                if(k>1000){
+                    break
+                }
             }
             // }
         }
@@ -1529,7 +1551,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.moveto.y = this.body.y + 1
                 this.speedbonus = 0
             }
-            this.speedbonus *= .999
+            this.speedbonus *= .997
         }
         control(to) {
             if (this == players[0]) {
@@ -2671,9 +2693,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 players[t].moveto.x = (1 * (this.body.x - hitbox.x)) + this.body.x
                                 players[t].moveto.y = (1 * (this.body.y - hitbox.y)) + this.body.y
                                 let landingbox = new Circle((1 * (this.body.x - hitbox.x)) + this.body.x, (1 * (this.body.y - hitbox.y)) + this.body.y, 10, "red")
+                                let k = 0
                                 while (!landingbox.doesPerimeterTouch(players[t].body)) {
                                     players[t].drive()
                                     players[t].body.move()
+                                    k++
+                                    if(k>1000){
+                                        break
+                                    }
                                 }
                                 break
                             } else {
