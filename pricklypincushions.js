@@ -2953,7 +2953,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                        
+
                     }
                     if (this.health <= 0) {
                         players[t].gold += this.goldvalue
@@ -3225,6 +3225,35 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 // console.log(this)
                             }
                         }
+                    }else if (players[t].aliensquid == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                // this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].spears.length; k++) {
+                            if (players[t].spears[k].engage == 0) {
+                                if (players[t].spears[k].body.doesPerimeterTouch(this.body)) {
+                                    this.health -= players[t].speardamage
+                                    players[t].spears[k].life = 0
+                                }
+                            } else {
+                                if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
+                                    if(players[t].spears[k].life1 != 0){
+                                    this.health -= players[t].speardamage
+                                    players[t].spears[k].life1 = 0
+                                    }
+                                }
+                                if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
+                                    if(players[t].spears[k].life2 != 0){
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life2 = 0
+                                    }
+                                }
+                            }
+                        }
+                        
                     }
                     if (this.health <= 0) {
                         players[t].gold += this.goldvalue
