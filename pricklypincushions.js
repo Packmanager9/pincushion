@@ -966,9 +966,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
     angles.right = 0
     angles.left = 0
     function gamepad_angles() {
-        // angles.left = Math.atan2(gamepadAPI.axesStatus[3], gamepadAPI.axesStatus[2])
-        // console.log(gamepadAPI)
-
         if (Math.abs(gamepadAPI.axesStatus[1]) + Math.abs(gamepadAPI.axesStatus[0]) > 0.1) {
             if (isNaN(angles.right)) {
                 angles.right = 0
@@ -1364,6 +1361,37 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         move() {
             this.body.move()
+        }
+
+    }
+    class EnergyBlast {
+        constructor(from, to, owner) {
+
+            this.life = 12
+            if (owner == players[0]) {
+                this.body = new Circle(to.x, to.y, 30, "purple", 0, 0)
+                this.body2 = new Circle(to.x, to.y, 24, "magenta", 0, 0)
+                this.body3 = new Circle(to.x, to.y, 18, "purple", 0, 0)
+                this.body4 = new Circle(to.x, to.y, 12, "magenta", 0, 0)
+                this.body5 = new Circle(to.x, to.y, 6, "purple", 0, 0)
+            } else {
+                this.body = new Circle(to.x, to.y, 30, "magenta", 0, 0)
+                this.body2 = new Circle(to.x, to.y, 24, "purple", 0, 0)
+                this.body3 = new Circle(to.x, to.y, 18, "magenta", 0, 0)
+                this.body4 = new Circle(to.x, to.y, 12, "purple", 0, 0)
+                this.body5 = new Circle(to.x, to.y, 6, "magenta", 0, 0)
+            }
+
+        }
+        draw() {
+            this.body.draw()
+            this.body2.draw()
+            this.body3.draw()
+            this.body4.draw()
+            this.body5.draw()
+        }
+        move(){
+
         }
 
     }
@@ -2213,7 +2241,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.speedbonus = 0
             this.health = 425
             this.healthmax = this.health
-            this.mana = 300
+            this.mana = 600
             this.manamax = this.mana
             this.moveto = {}
             this.moveto.x = this.body.x - 1.01
@@ -2231,10 +2259,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.trapcooldown = 0
             this.trapdrain = 280
             this.trapcost = 30
-            this.mps = .1
-            this.hps = .15
+            this.mps = .3
+            this.hps = .25
             this.traprange = 100
             this.healpower = 150
+            this.healrange = 150
             this.army = []
             this.spawner = 0
             this.spawnpoint = new Point(this.body.x, this.body.y)
@@ -2246,7 +2275,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.ulttimer = 0
             this.ultcost = 100
             this.ultcooldown = 0
-            this.ultdrain = 450
+            this.ultdrain = 950
             this.ulttime = 150
             this.ultrange = 180
             this.basicrate = 100 
@@ -2388,8 +2417,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
         gamepadSkillsAdapter(to) {
 
             let towards = new Point(0, 0)
-            towards.x = (Math.cos(gamepad_angles().left) * 100) + 360
-            towards.y = (Math.sin(gamepad_angles().left) * 100) + 360
+            towards.x = (Math.cos(gamepad_angles().left) * this.healrange) + 360
+            towards.y = (Math.sin(gamepad_angles().left) * this.healrange) + 360
 
             let link = new LineOP(this.body, towards)
             link.draw()
@@ -2403,10 +2432,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.slam(towards)
             }
             if (gamepadAPI.buttonsStatus.includes('RB')) {
-                this.heal()
+            towards.x = (Math.cos(gamepad_angles().left) * this.healrange) +  this.body.x
+            towards.y = (Math.sin(gamepad_angles().left) * this.healrange) +  this.body.y
+                this.heal(towards)
             }
             if (gamepadAPI.buttonsStatus.includes('LB')) {
-                this.ulting()
+                this.ulting(towards)
             }
         }
         skillsAdapter(to) {
@@ -2415,7 +2446,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.spear(to)
                 }
                 if (keysPressed['w']) {
-                    this.heal()
+                    this.heal(to)
                 }
                 if (keysPressed['e']) {
                     this.slam(to)
@@ -2446,7 +2477,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.mana > this.healcost + Math.max(this.spearcost, this.trapcost)) {
                     if (Math.random() < .003) {
                         if (this.health < this.maxhealth - this.healpower) {
-                            this.heal()
+                            this.heal(fuzz)
                         }
                     }
                 }
@@ -2512,17 +2543,15 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
 
         }
-        heal() {
-
-            if (this.mana > this.healcost) {
+        heal(to) {
+            if (this.mana >= this.healcost) {
                 if (this.healcooldown <= 0) {
-                    this.health += this.healpower
+                    let pin = new EnergyBlast(this.body, to, this)
+                    this.slams.push(pin)
                     this.healcooldown = this.healdrain
                     this.mana -= this.healcost
                 }
             }
-
-
         }
         trap(to) {
             if (this == players[0]) {
@@ -2563,8 +2592,21 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.ulttimer > 0) {
 
                 let towards = new Point(0, 0)
-                towards.x = (Math.cos(gamepad_angles().left) * this.ultrange) + this.body.x
-                towards.y = (Math.sin(gamepad_angles().left) * this.ultrange) + this.body.y
+                if(this == players[0]){
+                    towards.x = (Math.cos(gamepad_angles().left) * this.ultrange) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * this.ultrange) + this.body.y
+                }else{
+                    let angler = 0
+                    for(let t = 0;t<players.length;t++){
+                        if(this!=players[t]){
+                            angler = Math.atan2(this.body.y-players[t].body.y, this.body.x-players[t].body.x)+Math.PI
+                        }
+                    }
+
+                    towards.x = (Math.cos(angler) * this.ultrange) + this.body.x
+                    towards.y = (Math.sin(angler) * this.ultrange) + this.body.y
+
+                }
 
                 let pin = new EnergyBeam(this.body, towards, this)
                 let link = new LineOP(this.body, towards, "purple", 6)
@@ -2592,16 +2634,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 canvas_context.fillText(`${this.gold}`, this.body.x - 340, this.body.y - 340)
             }
 
+            this.slamdraw()
+
             if (this == players[0]) {
                 let towards = new Point(0, 0)
-                towards.x = (Math.cos(gamepad_angles().left) * 100) + this.body.x
-                towards.y = (Math.sin(gamepad_angles().left) * 100) + this.body.y
+                towards.x = (Math.cos(gamepad_angles().left) * this.healrange) + this.body.x
+                towards.y = (Math.sin(gamepad_angles().left) * this.healrange) + this.body.y
 
                 let link = new LineOP(this.body, towards, "white", 1)
                 link.draw()
             }
 
-            this.slamdraw()
             this.regen()
             this.drive()
             this.locked--
