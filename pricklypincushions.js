@@ -1531,11 +1531,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.draw()
             } else {
 
-                if(this.life1 == 1){
+                if (this.life1 == 1) {
 
                     this.body1.draw()
                 }
-                if(this.life2 == 1){
+                if (this.life2 == 1) {
 
                     this.body2.draw()
                 }
@@ -1562,11 +1562,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.y = 1000000
                 this.end.x = 1000001
                 this.end.y = 1000002
-                if(this.life1 == 1){
-                this.body1.move()
+                if (this.life1 == 1) {
+                    this.body1.move()
                 }
-                if(this.life2 == 1){
-                this.body2.move()
+                if (this.life2 == 1) {
+                    this.body2.move()
                 }
             }
         }
@@ -1684,7 +1684,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.movespeedbase = 1
             this.trapdrop = -.99
             this.speedbonus = 0
-            this.health = 550
+            this.health = 500
             this.healthmax = this.health
             this.mana = 300
             this.manamax = this.mana
@@ -1716,6 +1716,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.robofister = 0
             this.pincushion = 1
             this.aliensquid = 0
+            this.basicrate = 50 
+            this.basictimer = 0
+            this.basicrange = 78
+            this.basictarget = {}
+            this.basicdamage = 55
         }
         marshal() {
             if (this.spawner % 1000 == 20) {
@@ -2037,6 +2042,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
             this.body.draw()
+            this.basic()
             this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "green")
             this.healthbar.width = (this.health / this.healthmax) * this.body.radius * 2
             this.manabar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 1.6), this.body.radius * 2, this.body.radius * .25, "blue")
@@ -2046,6 +2052,39 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.speardraw()
             this.cooldown()
             this.collide()
+        }
+        basic() {
+            this.basictimer++
+            let min = this.basicrange
+            this.basictarget = {}
+            for (let t = 0; t < players.length; t++) {
+                if(players[t]!=this){
+                    for (let k = 0; k < players[t].army.length; k++) {
+                        let link = new LineOP(this.body, players[t].army[k].body)
+                        if (link.hypotenuse() <= min) {
+                            min = link.hypotenuse()
+                            this.basictarget = players[t].army[k]
+                        }
+                        let link2 = new LineOP(this.body, players[t].body)
+                        if (link2.hypotenuse() <= this.basicrange) {
+                            this.basictarget = players[t]
+                        }
+                    }
+                }
+            }
+
+            this.basicAttack()
+        }
+        basicAttack(){
+            if(this.basictarget.health > 0){
+                if(this.basictimer%this.basicrate == 0){
+                    this.basictarget.health -= this.basicdamage
+                }
+                if(this.basictimer%this.basicrate <=9){
+                    let link = new LineOP(this.body, this.basictarget.body, "black", 4)
+                    link.draw()
+                }
+            }
         }
         collide() {
             for (let t = 0; t < players.length; t++) {
@@ -2119,7 +2158,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 console.log(this)
                             }
                         }
-                    }else if (players[t].aliensquid == 1) {
+                    } else if (players[t].aliensquid == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
@@ -2134,13 +2173,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             } else {
                                 if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life1 != 0){
-                                    this.health -= players[t].speardamage
-                                    players[t].spears[k].life1 = 0
+                                    if (players[t].spears[k].life1 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life1 = 0
                                     }
                                 }
                                 if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life2 != 0){
+                                    if (players[t].spears[k].life2 != 0) {
                                         this.health -= players[t].speardamage
                                         players[t].spears[k].life2 = 0
                                     }
@@ -2174,7 +2213,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.movespeedbase = 1
             this.trapdrop = -.99
             this.speedbonus = 0
-            this.health = 550
+            this.health = 425
             this.healthmax = this.health
             this.mana = 300
             this.manamax = this.mana
@@ -2212,6 +2251,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.ultdrain = 450
             this.ulttime = 150
             this.ultrange = 180
+            this.basicrate = 100 
+            this.basictimer = 0
+            this.basicrange = 100
+            this.basictarget = {}
+            this.basicdamage = 100
         }
         marshal() {
             if (this.spawner % 1000 == 20) {
@@ -2440,7 +2484,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             for (let t = 0; t < this.spears.length; t++) {
                 if (this.spears[t].life <= 0) {
-                    if(this.spears[t].engage != 0){
+                    if (this.spears[t].engage != 0) {
                         this.spears.splice(t, 1)
                     }
                 }
@@ -2520,9 +2564,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
         }
-        firing(){
-            if(this.ulttimer > 0){
-              
+        firing() {
+            if (this.ulttimer > 0) {
+
                 let towards = new Point(0, 0)
                 towards.x = (Math.cos(gamepad_angles().left) * this.ultrange) + this.body.x
                 towards.y = (Math.sin(gamepad_angles().left) * this.ultrange) + this.body.y
@@ -2532,7 +2576,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 link.draw()
 
                 this.slams.push(pin)
-        }
+            }
 
 
         }
@@ -2583,6 +2627,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
             this.body.draw()
+            this.basic()
             this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "green")
             this.healthbar.width = (this.health / this.healthmax) * this.body.radius * 2
             this.manabar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 1.6), this.body.radius * 2, this.body.radius * .25, "blue")
@@ -2592,6 +2637,39 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.speardraw()
             this.cooldown()
             this.collide()
+        }
+        basic() {
+            this.basictimer++
+            let min = this.basicrange
+            this.basictarget = {}
+            for (let t = 0; t < players.length; t++) {
+                if(players[t]!=this){
+                    for (let k = 0; k < players[t].army.length; k++) {
+                        let link = new LineOP(this.body, players[t].army[k].body)
+                        if (link.hypotenuse() <= min) {
+                            min = link.hypotenuse()
+                            this.basictarget = players[t].army[k]
+                        }
+                        let link2 = new LineOP(this.body, players[t].body)
+                        if (link2.hypotenuse() <= this.basicrange) {
+                            this.basictarget = players[t]
+                        }
+                    }
+                }
+            }
+
+            this.basicAttack()
+        }
+        basicAttack(){
+            if(this.basictarget.health > 0){
+                if(this.basictimer%this.basicrate == 0){
+                    this.basictarget.health -= this.basicdamage
+                }
+                if(this.basictimer%this.basicrate <=9){
+                    let link = new LineOP(this.body, this.basictarget.body, "black", 4)
+                    link.draw()
+                }
+            }
         }
         collide() {
             for (let t = 0; t < players.length; t++) {
@@ -2680,13 +2758,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             } else {
                                 if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life1 != 0){
-                                    this.health -= players[t].speardamage
-                                    players[t].spears[k].life1 = 0
+                                    if (players[t].spears[k].life1 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life1 = 0
                                     }
                                 }
                                 if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life2 != 0){
+                                    if (players[t].spears[k].life2 != 0) {
                                         this.health -= players[t].speardamage
                                         players[t].spears[k].life2 = 0
                                     }
@@ -2940,13 +3018,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             } else {
                                 if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life1 != 0){
-                                    this.health -= players[t].speardamage
-                                    players[t].spears[k].life1 = 0
+                                    if (players[t].spears[k].life1 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life1 = 0
                                     }
                                 }
                                 if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life2 != 0){
+                                    if (players[t].spears[k].life2 != 0) {
                                         this.health -= players[t].speardamage
                                         players[t].spears[k].life2 = 0
                                     }
@@ -3151,7 +3229,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         }
         collide() {
-//tower
+            //tower
 
 
 
@@ -3225,7 +3303,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 // console.log(this)
                             }
                         }
-                    }else if (players[t].aliensquid == 1) {
+                    } else if (players[t].aliensquid == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
@@ -3240,20 +3318,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             } else {
                                 if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life1 != 0){
-                                    this.health -= players[t].speardamage
-                                    players[t].spears[k].life1 = 0
+                                    if (players[t].spears[k].life1 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life1 = 0
                                     }
                                 }
                                 if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life2 != 0){
+                                    if (players[t].spears[k].life2 != 0) {
                                         this.health -= players[t].speardamage
                                         players[t].spears[k].life2 = 0
                                     }
                                 }
                             }
                         }
-                        
+
                     }
                     if (this.health <= 0) {
                         players[t].gold += this.goldvalue
@@ -3380,6 +3458,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.ultcooldown = 0
             this.ultdrain = 1000
             this.ultrun = 0
+            this.basicrate = 40 
+            this.basictimer = 0
+            this.basicrange = 28
+            this.basictarget = {}
+            this.basicdamage = 45
         }
         marshal() {
             if (this.spawner % 1000 == 20) {
@@ -3792,6 +3875,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
             this.body.draw()
+            this.basic()
             this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "green")
             this.healthbar.width = (this.health / this.healthmax) * this.body.radius * 2
             this.manabar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 1.6), this.body.radius * 2, this.body.radius * .25, "blue")
@@ -3801,6 +3885,39 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.gasdraw()
             this.cooldown()
             this.collide()
+        }
+        basic() {
+            this.basictimer++
+            let min = this.basicrange
+            this.basictarget = {}
+            for (let t = 0; t < players.length; t++) {
+                if(players[t]!=this){
+                    for (let k = 0; k < players[t].army.length; k++) {
+                        let link = new LineOP(this.body, players[t].army[k].body)
+                        if (link.hypotenuse() <= min) {
+                            min = link.hypotenuse()
+                            this.basictarget = players[t].army[k]
+                        }
+                        let link2 = new LineOP(this.body, players[t].body)
+                        if (link2.hypotenuse() <= this.basicrange) {
+                            this.basictarget = players[t]
+                        }
+                    }
+                }
+            }
+
+            this.basicAttack()
+        }
+        basicAttack(){
+            if(this.basictarget.health > 0){
+                if(this.basictimer%this.basicrate == 0){
+                    this.basictarget.health -= this.basicdamage
+                }
+                if(this.basictimer%this.basicrate <=9){
+                    let link = new LineOP(this.body, this.basictarget.body, "black", 4)
+                    link.draw()
+                }
+            }
         }
         collide() {
             for (let t = 0; t < players.length; t++) {
@@ -3874,7 +3991,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 console.log(this)
                             }
                         }
-                    }else if (players[t].aliensquid == 1) {
+                    } else if (players[t].aliensquid == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
@@ -3889,13 +4006,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             } else {
                                 if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life1 != 0){
-                                    this.health -= players[t].speardamage
-                                    players[t].spears[k].life1 = 0
+                                    if (players[t].spears[k].life1 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life1 = 0
                                     }
                                 }
                                 if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life2 != 0){
+                                    if (players[t].spears[k].life2 != 0) {
                                         this.health -= players[t].speardamage
                                         players[t].spears[k].life2 = 0
                                     }
@@ -3935,7 +4052,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.shielddrain = 140
             this.shieldcooldown = 0
             this.shieldstate = 0
-            this.health = 550
+            this.health = 950
             this.healthmax = this.health
             this.mana = 100
             this.manamax = this.mana
@@ -3975,6 +4092,12 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.ultcooldown = 0
             this.ultdrain = 1000
             this.ultrun = 0
+            this.basicrate = 30 
+            this.basictimer = 0
+            this.basicrange = 25
+            this.basictarget = {}
+            this.basicdamage = 45
+
         }
         marshal() {
             if (this.spawner % 1000 == 20) {
@@ -4264,17 +4387,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
             if (this.dashstate == 1) {
-                // if(this.dashtarget.health > 0){
-                this.moveto = this.dashtarget
+
+
+                // this.moveto = this.dashtarget
+
+
+                this.moveto.x = this.dashtarget.x
+                this.moveto.y = this.dashtarget.y
+                this.moveto.radius = this.dashtarget.radius
                 this.speedbonus = 7
                 this.mana -= this.orbcost
                 let link = new LineOP(this.body, this.dashtarget)
                 this.locked = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
                 this.lockholder = this.locked
                 this.dashstate = 0
-                // }else{
-                //     this.dashstate = 0
-                // }
             }
         }
         orbdraw() {
@@ -4333,6 +4459,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
             this.body.draw()
+            this.basic()
             if (this.activeshield > 0) {
                 let shield = new Circle(this.body.x, this.body.y, (this.activeshield * .020), "yellow")
                 shield.draw()
@@ -4347,6 +4474,39 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.orbdraw()
             this.cooldown()
             this.collide()
+        }
+        basic() {
+            this.basictimer++
+            let min = this.basicrange
+            this.basictarget = {}
+            for (let t = 0; t < players.length; t++) {
+                if(players[t]!=this){
+                    for (let k = 0; k < players[t].army.length; k++) {
+                        let link = new LineOP(this.body, players[t].army[k].body)
+                        if (link.hypotenuse() <= min) {
+                            min = link.hypotenuse()
+                            this.basictarget = players[t].army[k]
+                        }
+                        let link2 = new LineOP(this.body, players[t].body)
+                        if (link2.hypotenuse() <= this.basicrange) {
+                            this.basictarget = players[t]
+                        }
+                    }
+                }
+            }
+
+            this.basicAttack()
+        }
+        basicAttack(){
+            if(this.basictarget.health > 0){
+                if(this.basictimer%this.basicrate == 0){
+                    this.basictarget.health -= this.basicdamage
+                }
+                if(this.basictimer%this.basicrate <=9){
+                    let link = new LineOP(this.body, this.basictarget.body, "black", 4)
+                    link.draw()
+                }
+            }
         }
         collide() {
             let dummy = this.health
@@ -4421,7 +4581,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 console.log(this)
                             }
                         }
-                    }else if (players[t].aliensquid == 1) {
+                    } else if (players[t].aliensquid == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
@@ -4436,13 +4596,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             } else {
                                 if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life1 != 0){
-                                    this.health -= players[t].speardamage
-                                    players[t].spears[k].life1 = 0
+                                    if (players[t].spears[k].life1 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life1 = 0
                                     }
                                 }
                                 if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life2 != 0){
+                                    if (players[t].spears[k].life2 != 0) {
                                         this.health -= players[t].speardamage
                                         players[t].spears[k].life2 = 0
                                     }
@@ -4489,7 +4649,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.shielddrain = 140
             this.shieldcooldown = 0
             this.shieldstate = 0
-            this.health = 550
+            this.health = 650
             this.healthmax = this.health
             this.mana = 100
             this.manamax = this.mana
@@ -4529,9 +4689,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.ultcost = 25
             this.ultcooldown = 0
             this.ultdrain = 1000
-
             this.speedboost = 0
             this.ultrun = 0
+            this.basicrate = 60 
+            this.basictimer = 0
+            this.basicrange = 26
+            this.basictarget = {}
+            this.basicdamage = 95
         }
         marshal() {
             if (this.spawner % 1000 == 20) {
@@ -4794,8 +4958,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
         slam(to) {
             if (this.mana >= this.ultcost) {
                 if (this.ultcooldown <= 0) {
-                    this.mana -= this.ultcost
-                    this.ultcooldown -= this.ultdrain
+                    // this.mana -= this.ultcost
+                    // this.ultcooldown -= this.ultdrain
                 }
             }
         }
@@ -4883,6 +5047,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
             }
             this.body.draw()
+            this.basic()
             if (this.activeshield > 0) {
                 let shield = new Circle(this.body.x, this.body.y, (this.activeshield * .020), "yellow")
                 shield.draw()
@@ -4897,6 +5062,39 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.hookdraw()
             this.cooldown()
             this.collide()
+        }
+        basic() {
+            this.basictimer++
+            let min = this.basicrange
+            this.basictarget = {}
+            for (let t = 0; t < players.length; t++) {
+                if(players[t]!=this){
+                    for (let k = 0; k < players[t].army.length; k++) {
+                        let link = new LineOP(this.body, players[t].army[k].body)
+                        if (link.hypotenuse() <= min) {
+                            min = link.hypotenuse()
+                            this.basictarget = players[t].army[k]
+                        }
+                        let link2 = new LineOP(this.body, players[t].body)
+                        if (link2.hypotenuse() <= this.basicrange) {
+                            this.basictarget = players[t]
+                        }
+                    }
+                }
+            }
+
+            this.basicAttack()
+        }
+        basicAttack(){
+            if(this.basictarget.health > 0){
+                if(this.basictimer%this.basicrate == 0){
+                    this.basictarget.health -= this.basicdamage
+                }
+                if(this.basictimer%this.basicrate <=9){
+                    let link = new LineOP(this.body, this.basictarget.body, "black", 4)
+                    link.draw()
+                }
+            }
         }
         collide() {
             let dummy = this.health
@@ -4971,7 +5169,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 console.log(this)
                             }
                         }
-                    }else if (players[t].aliensquid == 1) {
+                    } else if (players[t].aliensquid == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
@@ -4986,13 +5184,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             } else {
                                 if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life1 != 0){
-                                    this.health -= players[t].speardamage
-                                    players[t].spears[k].life1 = 0
+                                    if (players[t].spears[k].life1 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life1 = 0
                                     }
                                 }
                                 if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
-                                    if(players[t].spears[k].life2 != 0){
+                                    if (players[t].spears[k].life2 != 0) {
                                         this.health -= players[t].speardamage
                                         players[t].spears[k].life2 = 0
                                     }
