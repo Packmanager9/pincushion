@@ -1802,8 +1802,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         control(to) {
             if (this.locked <= 0) {
                 if (this == players[0]) {
-                    // this.moveto.x = to.x
-                    // this.moveto.y = to.y
                     this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
                     this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
                 } else {
@@ -1811,46 +1809,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.moveto.y = to.y
                 }
             }
-            this.locked--
-
             if (this.body.doesPerimeterTouch(this.dashtarget)) {
                 this.locked = 0
-                // this.dashtarget.x = this.body.x * 1000
-                // this.dashtarget.y = this.body.y * 1000
-                // this.dashtarget.radius = 0
-                // this.body.x += 1
-                // let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random())
-                // this.moveto = mover
-                // this.body.x -= 1
             }
             if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
         }
         drive() {
-            this.body.xmom = 0 - (this.body.x - this.moveto.x)
-            this.body.ymom = 0 - (this.body.y - this.moveto.y)
+            if(typeof this.speedbonus == "undefined"){
+                this.speedbonus = 0
+            }
+            if (this.locked <= 0 || this.locked == this.lockholder) {
+                this.body.xmom = 0 - (this.body.x - this.moveto.x)
+                this.body.ymom = 0 - (this.body.y - this.moveto.y)
 
-            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
-            let k = 0
-            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
-                this.body.xmom *= 0.98
-                this.body.ymom *= 0.98
-                if (k == 10000) {
-                    break
-                } else {
-                    k++
+                // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+                let k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
+                    this.body.xmom *= 0.98
+                    this.body.ymom *= 0.98
+                    if (k == 10000) {
+                        break
+                    }
+                }
+                k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
+                    this.body.xmom *= 1.02
+                    this.body.ymom *= 1.02
+                    if (k == 10000) {
+                        break
+                    }
                 }
             }
-            k = 0
-            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
-                this.body.xmom *= 1.02
-                this.body.ymom *= 1.02
-                if (k == 10000) {
-                    break
-                } else {
-                    k++
-                }
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
             }
         }
         gamepadSkillsAdapter(to) {
@@ -2023,6 +2019,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             this.regen()
             this.drive()
+            this.locked--
             let check = new LineOP(this.moveto, this.body)
             if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
                 this.body.move()
@@ -2153,6 +2150,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 let link = new LineOP(this.body, this.dashtarget)
                                 let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
                                 this.locked = Math.round(hookdot)
+                                console.log(this.locked)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
                                 console.log(this)
@@ -2336,11 +2334,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.speedbonus *= .997
         }
+    
         control(to) {
             if (this.locked <= 0) {
                 if (this == players[0]) {
-                    // this.moveto.x = to.x
-                    // this.moveto.y = to.y
                     this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
                     this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
                 } else {
@@ -2348,46 +2345,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.moveto.y = to.y
                 }
             }
-            this.locked--
-
             if (this.body.doesPerimeterTouch(this.dashtarget)) {
                 this.locked = 0
-                // this.dashtarget.x = this.body.x * 1000
-                // this.dashtarget.y = this.body.y * 1000
-                // this.dashtarget.radius = 0
-                // this.body.x += 1
-                // let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random())
-                // this.moveto = mover
-                // this.body.x -= 1
             }
             if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
         }
         drive() {
-            this.body.xmom = 0 - (this.body.x - this.moveto.x)
-            this.body.ymom = 0 - (this.body.y - this.moveto.y)
+            if(typeof this.speedbonus == "undefined"){
+                this.speedbonus = 0
+            }
+            if (this.locked <= 0 || this.locked == this.lockholder) {
+                this.body.xmom = 0 - (this.body.x - this.moveto.x)
+                this.body.ymom = 0 - (this.body.y - this.moveto.y)
 
-            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
-            let k = 0
-            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
-                this.body.xmom *= 0.98
-                this.body.ymom *= 0.98
-                if (k == 10000) {
-                    break
-                } else {
-                    k++
+                // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+                let k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
+                    this.body.xmom *= 0.98
+                    this.body.ymom *= 0.98
+                    if (k == 10000) {
+                        break
+                    }
+                }
+                k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
+                    this.body.xmom *= 1.02
+                    this.body.ymom *= 1.02
+                    if (k == 10000) {
+                        break
+                    }
                 }
             }
-            k = 0
-            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
-                this.body.xmom *= 1.02
-                this.body.ymom *= 1.02
-                if (k == 10000) {
-                    break
-                } else {
-                    k++
-                }
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
             }
         }
         gamepadSkillsAdapter(to) {
@@ -2606,15 +2601,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 link.draw()
             }
 
+            this.slamdraw()
             this.regen()
             this.drive()
+            this.locked--
             let check = new LineOP(this.moveto, this.body)
             if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
                 this.body.move()
             } else if (this.locked > 0) {
                 this.body.move()
             }
-            this.slamdraw()
             this.firing()
             if (keysPressed['e']) {
                 if (this == players[0]) {
@@ -2867,6 +2863,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             } else if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
                 let dummy = this.target.health
                 this.target.health -= this.melee
+
+                    let link = new LineOP(this.body, this.target.body, this.body.color, 2)
+                    link.draw()
 
 
 
@@ -3560,11 +3559,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.speedbonus *= .999
         }
+    
         control(to) {
             if (this.locked <= 0) {
                 if (this == players[0]) {
-                    // this.moveto.x = to.x
-                    // this.moveto.y = to.y
                     this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
                     this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
                 } else {
@@ -3572,46 +3570,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.moveto.y = to.y
                 }
             }
-            this.locked--
-
             if (this.body.doesPerimeterTouch(this.dashtarget)) {
                 this.locked = 0
-                // this.dashtarget.x = this.body.x * 1000
-                // this.dashtarget.y = this.body.y * 1000
-                // this.dashtarget.radius = 0
-                // this.body.x += 1
-                // let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random())
-                // this.moveto = mover
-                // this.body.x -= 1
             }
             if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
         }
         drive() {
-            this.body.xmom = 0 - (this.body.x - this.moveto.x)
-            this.body.ymom = 0 - (this.body.y - this.moveto.y)
+            if(typeof this.speedbonus == "undefined"){
+                this.speedbonus = 0
+            }
+            if (this.locked <= 0 || this.locked == this.lockholder) {
+                this.body.xmom = 0 - (this.body.x - this.moveto.x)
+                this.body.ymom = 0 - (this.body.y - this.moveto.y)
 
-            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
-            let k = 0
-            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
-                this.body.xmom *= 0.98
-                this.body.ymom *= 0.98
-                if (k == 10000) {
-                    break
-                } else {
-                    k++
+                // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+                let k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
+                    this.body.xmom *= 0.98
+                    this.body.ymom *= 0.98
+                    if (k == 10000) {
+                        break
+                    }
+                }
+                k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
+                    this.body.xmom *= 1.02
+                    this.body.ymom *= 1.02
+                    if (k == 10000) {
+                        break
+                    }
                 }
             }
-            k = 0
-            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
-                this.body.xmom *= 1.02
-                this.body.ymom *= 1.02
-                if (k == 10000) {
-                    break
-                } else {
-                    k++
-                }
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
             }
         }
         gamepadSkillsAdapter(to) {
@@ -3857,6 +3853,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             this.regen()
             this.drive()
+            this.locked--
             let check = new LineOP(this.moveto, this.body)
             if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
                 this.body.move()
@@ -4200,8 +4197,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
         control(to) {
             if (this.locked <= 0) {
                 if (this == players[0]) {
-                    // this.moveto.x = to.x
-                    // this.moveto.y = to.y
                     this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
                     this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
                 } else {
@@ -4209,23 +4204,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.moveto.y = to.y
                 }
             }
-            this.locked--
-
             if (this.body.doesPerimeterTouch(this.dashtarget)) {
                 this.locked = 0
-                // this.dashtarget.x = this.body.x * 1000
-                // this.dashtarget.y = this.body.y * 1000
-                // this.dashtarget.radius = 0
-                // this.body.x += 1
-                // let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random())
-                // this.moveto = mover
-                // this.body.x -= 1
             }
             if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
         }
         drive() {
+            if(typeof this.speedbonus == "undefined"){
+                this.speedbonus = 0
+            }
             if (this.locked <= 0 || this.locked == this.lockholder) {
                 this.body.xmom = 0 - (this.body.x - this.moveto.x)
                 this.body.ymom = 0 - (this.body.y - this.moveto.y)
@@ -4250,18 +4239,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             if (this.body.doesPerimeterTouch(this.dashtarget)) {
                 this.locked = 0
-                // this.dashtarget.x = this.body.x * 1000
-                // this.dashtarget.y = this.body.y * 1000
-                // this.dashtarget.radius = 0
-                // this.body.x += 1
-                // let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random())
-                // this.moveto = mover
-                // this.body.x -= 1
             }
             if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
-
         }
         gamepadSkillsAdapter(to) {
 
@@ -4441,6 +4422,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             this.regen()
             this.drive()
+            this.locked--
             let check = new LineOP(this.moveto, this.body)
             if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
                 this.body.move()
@@ -4795,11 +4777,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             this.speedbonus *= .999
         }
+    
         control(to) {
             if (this.locked <= 0) {
                 if (this == players[0]) {
-                    // this.moveto.x = to.x
-                    // this.moveto.y = to.y
                     this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
                     this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
                 } else {
@@ -4807,30 +4788,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.moveto.y = to.y
                 }
             }
-            this.locked--
-
             if (this.body.doesPerimeterTouch(this.dashtarget)) {
                 this.locked = 0
-                // this.dashtarget.x = this.body.x * 1000
-                // this.dashtarget.y = this.body.y * 1000
-                // this.dashtarget.radius = 0
-                // this.body.x += 1
-                // let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random())
-                // this.moveto = mover
-                // this.body.x -= 1
             }
             if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
         }
         drive() {
+            if(typeof this.speedbonus == "undefined"){
+                this.speedbonus = 0
+            }
             if (this.locked <= 0 || this.locked == this.lockholder) {
                 this.body.xmom = 0 - (this.body.x - this.moveto.x)
                 this.body.ymom = 0 - (this.body.y - this.moveto.y)
 
                 // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
                 let k = 0
-                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus + this.speedboost)) {
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
                     this.body.xmom *= 0.98
                     this.body.ymom *= 0.98
                     if (k == 10000) {
@@ -4838,7 +4813,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
                 k = 0
-                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus + this.speedboost)) {
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
                     this.body.xmom *= 1.02
                     this.body.ymom *= 1.02
                     if (k == 10000) {
@@ -4848,19 +4823,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             if (this.body.doesPerimeterTouch(this.dashtarget)) {
                 this.locked = 0
-                // this.dashtarget.x = this.body.x * 1000
-                // this.dashtarget.y = this.body.y * 1000
-                // this.dashtarget.radius = 0
-                // this.body.x += 1
-                // let mover = new Point(this.body.x + Math.random(), this.body.y + Math.random())
-                // this.moveto = mover
-                // this.body.x -= 1
             }
             if (Math.round(this.locked) == 0) {
                 this.speedbonus = 0
             }
-
-            this.speedboost *= .995
         }
         gamepadSkillsAdapter(to) {
 
@@ -5029,6 +4995,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             this.regen()
             this.drive()
+            this.locked--
             let check = new LineOP(this.moveto, this.body)
             if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
                 this.body.move()
@@ -5264,7 +5231,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             players[0].gamepadSkillsAdapter(new Point(0, 0))
             // console.log(gamepad_angles())
             if (players[0].locked <= 0) {
-                gamepad_control(players[0], players[0].movespeedbase + players[0].speedbonus + + players[0].speedboost)
+                gamepad_control(players[0], players[0].movespeedbase + players[0].speedbonus + players[0].speedboost)
+            }else{
+                console.log(players[0].locked)
             }
 
             if (paused == -1) {
