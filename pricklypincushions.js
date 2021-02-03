@@ -2473,14 +2473,23 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.spear(fuzz)
                     // }
                 }
-
-                if (this.mana > this.healcost + Math.max(this.spearcost, this.trapcost)) {
-                    if (Math.random() < .003) {
-                        if (this.health < this.maxhealth - this.healpower) {
-                            this.heal(fuzz)
-                        }
+                let angler = 0
+                for(let t = 0;t<players.length;t++){
+                    if(this!=players[t]){
+                        angler = Math.atan2(this.body.y-players[t].body.y, this.body.x-players[t].body.x)+Math.PI
                     }
                 }
+
+                fuzz.x = (Math.cos(angler) * this.ultrange) + this.body.x
+                fuzz.y = (Math.sin(angler) * this.ultrange) + this.body.y
+
+                // if (this.mana > this.healcost + Math.max(this.spearcost, this.trapcost)) {
+                    if (Math.random() < .003) {
+                        // if (this.health < this.maxhealth - this.healpower) {
+                            this.heal(fuzz)
+                        // }
+                    }
+                // }
                 fuzz.x = ((Math.random() - .5) * 100) + this.body.x
                 fuzz.y = ((Math.random() - .5) * 100) + this.body.y
                 if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
@@ -5148,7 +5157,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
-                                this.health -= (players[t].hookdamage)
+                                this.health -= (players[t].orbdamage)
                                 players[t].dashtarget.x = this.body.x
                                 players[t].dashtarget.y = this.body.y
                                 players[t].dashstate = 1
