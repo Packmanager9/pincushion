@@ -4735,7 +4735,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.locked = 0
             this.orbcost = 25
             this.orbcooldown = 0
-            this.orbdamage = 14
+            this.orbdamage = 60
             this.orbdrain = 200
             this.slamdamage = 10
             this.slamcooldown = 0
@@ -6120,7 +6120,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.locked = 0
             this.orbcost = 15
             this.orbcooldown = 0
-            this.orbdamage = 55
+            this.orbdamage = 14
             this.orbdrain = 50
             this.slamdamage = 1
             this.slamcooldown = 0
@@ -6415,8 +6415,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         }
         aura() {
-            if(this.speedboost < 3){
-                this.speedboost*=1.01
+            if(this.speedboost < 4){
+                this.speedboost*=1.003
+            }else{
+                this.speedboost = 0
+                this.empowered = 0
             }
             if (typeof this.auratimer == "undefined") {
                 this.auratimer = 0
