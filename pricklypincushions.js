@@ -2571,6 +2571,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
+                    }else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                            }
+                        }
                     }
                 }
             }
@@ -3249,6 +3261,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
+                    }else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                            }
+                        }
                     }
                 }
             }
@@ -3543,6 +3567,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     players[t].theftcount = 0
                                     players[t].health += players[t].theftbonus
                                 }
+                            }
+                        }
+                    }else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
                             }
                         }
                     }
@@ -3875,6 +3911,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     players[t].theftcount = 0
                                     players[t].health += players[t].theftbonus
                                 }
+                            }
+                        }
+                    }else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
                             }
                         }
                     }
@@ -4618,6 +4666,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
+                    }else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                            }
+                        }
                     }
                     if (this.health <= 0) {
                         players[t].gold += this.goldvalue
@@ -4675,7 +4735,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.locked = 0
             this.orbcost = 25
             this.orbcooldown = 0
-            this.orbdamage = 50
+            this.orbdamage = 14
             this.orbdrain = 200
             this.slamdamage = 10
             this.slamcooldown = 0
@@ -5244,6 +5304,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     players[t].theftcount = 0
                                     players[t].health += players[t].theftbonus
                                 }
+                            }
+                        }
+                    }else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
                             }
                         }
                     }
@@ -5969,6 +6041,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
+                    }else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                            }
+                        }
                     }
                     if (this.health <= 0) {
                         players[t].gold += this.goldvalue
@@ -5995,7 +6079,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     class Demontaur {
         constructor(x, y, color) {
-            this.aliensquid = 0
             this.speedboost = 0
             this.theftcount = 0
             this.theftbonus = 10
@@ -6013,7 +6096,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.shielddrain = 140
             this.shieldcooldown = 0
             this.shieldstate = 0
-            this.health = 950
+            this.health = 1150
             this.healthmax = this.health
             this.mana = 400
             this.manamax = this.mana
@@ -6027,19 +6110,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.dashtarget.radius = 0
             this.slamcost = 40
             this.dashstate = -1
-            this.mps = .2
-            this.hps = .15
+            this.mps = .09
+            this.hps = .25
             this.gluerange = 75
             this.flippower = 150
             this.fliprange = 50
             this.slams = []
             this.orblist = []
             this.locked = 0
-            this.orbcost = 70
+            this.orbcost = 15
             this.orbcooldown = 0
-            this.orbdamage = 120
-            this.orbdrain = 200
-            this.slamdamage = 190
+            this.orbdamage = 55
+            this.orbdrain = 50
+            this.slamdamage = 1
             this.slamcooldown = 0
             this.slamdrain = 300
             this.army = []
@@ -6050,17 +6133,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.demontaur = 1
             this.robofister = 0
             this.pincushion = 0
+            this.aliensquid = 0
             this.gasbag = 0
             this.ultcost = 100
             this.ultcooldown = 0
             this.ultdrain = 1000
             this.ultrun = 0
-            this.basicrate = 80
+            this.basicrate = 10
             this.basictimer = 0
-            this.basicrange = 90
+            this.basicrange = 25
             this.basictarget = {}
-            this.basicdamage = 90
-            this.dashrange = 99
+            this.basicdamage = 30
+            this.dashrange = 199 
+            this.dashcooldown = 0
 
             this.hooklist = []
             this.hookcost = 55
@@ -6125,7 +6210,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.ulttimer--
             this.dashcooldown--
             this.hookcooldown--
-            if (this.orbcooldown <= 0) {
+            if (this.dashcooldown <= 0) {
                 this.dashstate = -1
             }
         }
@@ -6197,7 +6282,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
                 // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
                 let k = 0
-                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus)) {
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus + this.speedboost)) {
                     this.body.xmom *= 0.98
                     this.body.ymom *= 0.98
                     if (k == 10000) {
@@ -6205,7 +6290,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     }
                 }
                 k = 0
-                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus)) {
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus + this.speedboost)) {
                     this.body.xmom *= 1.02
                     this.body.ymom *= 1.02
                     if (k == 10000) {
@@ -6230,7 +6315,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             link.draw()
 
             if (gamepadAPI.buttonsStatus.includes('Left-Trigger')) {
-                this.orbs(towards)
+                this.dashslam(towards)
             }
             if (gamepadAPI.buttonsStatus.includes('Right-Trigger')) {
                 towards.x = (Math.cos(gamepad_angles().left) * this.gluerange) + 360
@@ -6252,13 +6337,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
         skillsAdapter(to) {
             if (this == players[0]) {
                 if (keysPressed['q']) {
-                    this.orbs(to)
+                    this.dashslam(to)
                 }
                 if (keysPressed['w']) {
                     this.aura(to)
                 }
                 if (keysPressed['e']) {
-                    this.slam(to)
+                    this.slash(to)
                 }
                 if (keysPressed['r']) {
                     this.ultdash(to)
@@ -6268,22 +6353,22 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 fuzz.x = ((Math.random() - .5) * 10) + players[0].body.x
                 fuzz.y = ((Math.random() - .5) * 10) + players[0].body.y
                 this.ultdash(fuzz)
-                this.slam(fuzz)
+                this.dashslam(fuzz)
 
-                // if (Math.random() < .003) {
-                this.hooks(fuzz)
-                // }
-                // fuzz.x = ((Math.random() - .5) * this.gluerange * .7) + this.body.x
-                // fuzz.y = ((Math.random() - .5) * this.gluerange * .7) + this.body.y
-                if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
-                    if (Math.random() < .005) {
-                        this.orbs(fuzz)
-                    } else if (this.health > this.healthmax * .5) {
-                        if (this.dashstate == 0) {
-                            this.orbs(fuzz)
-                        }
-                    }
+                if (Math.random() < .003) {
+                this.slash(fuzz)
                 }
+                // fuzz.x = ((Math.random() - .5) * this.gluerange * .7) + this.body.x
+                // // fuzz.y = ((Math.random() - .5) * this.gluerange * .7) + this.body.y
+                // if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
+                //     if (Math.random() < .005) {
+                        this.aura(fuzz)
+                //     } else if (this.health > this.healthmax * .5) {
+                //         if (this.dashstate == 0) {
+                //             this.orbs(fuzz)
+                //         }
+                //     }
+                // }
             }
 
         }
@@ -6297,6 +6382,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.mana >= this.orbcost) {
                     let circ = new Circle(this.body.x, this.body.y, this.orbrange, "#66666688")
                     circ.life = 10
+                    circ.body = circ
                     this.orblist[0] = circ
                     this.orbcooldown=this.orbdrain
                     this.mana-=this.orbcost
@@ -6307,18 +6393,20 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         dashslam() {
 
-            if (typeof this.dashcooldown == "undefined") {
-                this.dashcooldown = 0
-            }
             if (typeof this.dashdrain == "undefined") {
                 this.dashdrain = 240
             }
             if (typeof this.dashcost == "undefined") {
                 this.dashcost = 60
             }
+            if (typeof this.empowered == "undefined") {
+                this.empowered = 0
+            }
             if (this.dashcooldown <= 0) {
-                if (this.mana >= this.orbcost) {
-                    
+                if (this.mana >= this.dashcost) {
+                    this.speedboost = 1
+                    this.empowered = 1
+
                     this.dashcooldown=this.dashdrain
                     this.mana-=this.dashcost
                 }
@@ -6327,6 +6415,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         }
         aura() {
+            if(this.speedboost < 3){
+                this.speedboost*=1.01
+            }
             if (typeof this.auratimer == "undefined") {
                 this.auratimer = 0
 
@@ -6360,12 +6451,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 canvas_context.stroke()
                 canvas_context.fill()
                 canvas_context.closePath()
-                this.hooklist[0] = innercirc
+                innercirc.body = innercirc
+                this.slams[0] = innercirc
 
 
             } else {
 
-                this.hooklist = []
+                this.slams = []
             }
 
 
@@ -6470,6 +6562,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     if (this.mana >= this.ultcost) {
                         this.dashtate = 2
                         this.ulttimer = 100
+                        this.empowered = 1
                         this.dashtarget.x = to.x
                         this.dashtarget.y = to.y
                         this.moveto.x = this.dashtarget.x
@@ -6481,23 +6574,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         let link = new LineOP(this.body, this.dashtarget)
                         this.locked = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
                         this.lockholder = this.locked
-                    }
-                }
-                if (this.ulttimer < 70) {
-                    if (this.dashtate > 0) {
-                        if (this.ultcooldown >= this.ultcooldown * .8) {
-                            this.dashtate--
-                            this.ulttimer = 100
-                            this.dashtarget.x = to.x
-                            this.dashtarget.y = to.y
-                            this.moveto.x = this.dashtarget.x
-                            this.moveto.y = this.dashtarget.y
-                            this.moveto.radius = this.dashtarget.radius
-                            this.speedbonus = 10
-                            let link = new LineOP(this.body, this.dashtarget)
-                            this.locked = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
-                            this.lockholder = this.locked
-                        }
                     }
                 }
             }
@@ -6630,6 +6706,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.basictarget.health > 0) {
                 if (this.basictimer % this.basicrate == 0) {
                     this.basictarget.health -= this.basicdamage
+                    if(this.empowered ==   1){
+                 
+                        this.basictarget.body.xmom =( (this.basictarget.body.x-this.body.x)/6)*this.speedboost
+                        this.basictarget.body.ymom =( (this.basictarget.body.y-this.body.y)/6)*this.speedboost
+                        for(let t =0;t<3;t++){
+                            this.basictarget.body.move()
+                            this.basictarget.health -= this.basicdamage
+                        }
+                        this.speedboost = 0
+                    }
+
                 }
                 if (this.basictimer % this.basicrate <= 9) {
                     let link = new LineOP(this.body, this.basictarget.body, "black", 4)
@@ -6779,6 +6866,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     players[t].theftcount = 0
                                     players[t].health += players[t].theftbonus
                                 }
+                            }
+                        }
+                    }else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
                             }
                         }
                     }
@@ -7402,6 +7501,18 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                     players[t].theftcount = 0
                                     players[t].health += players[t].theftbonus
                                 }
+                            }
+                        }
+                    } else if(players[t].demontaur == 1){
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage)*.2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
                             }
                         }
                     }
