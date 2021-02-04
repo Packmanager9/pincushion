@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (c.buttons) {
                 for (var b = 0, t = c.buttons.length; b < t; b++) {// loop through buttons and push the pressed ones to the array
                     if (c.buttons[b].pressed) {
-                        // console.log(c)
+                        // //console.log(c)
                         if (c.buttons[b].pressed == true && b == 9) {
                             if (wasfalse == 1) {
                                 paused *= -1
@@ -64,7 +64,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             gamepadAPI.axesStatus = axes;// assign received values
             gamepadAPI.buttonsStatus = pressed;
-            // console.log(pressed); // return buttons for debugging purposes
+            // //console.log(pressed); // return buttons for debugging purposes
             return pressed;
         },
         buttonPressed: function (button, hold) {
@@ -280,7 +280,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 canvas_context.fill()
                 canvas_context.stroke();
             } else {
-                // console.log("The circle is below a radius of 0, and has not been drawn. The circle is:", this)
+                // //console.log("The circle is below a radius of 0, and has not been drawn. The circle is:", this)
             }
         }
         move() {
@@ -967,7 +967,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     function gamepad_control(object, speed = 1) { // basic control for objects using the controler
-        // console.log(gamepadAPI.axesStatus[1] * gamepadAPI.axesStatus[0])
+        // //console.log(gamepadAPI.axesStatus[1] * gamepadAPI.axesStatus[0])
         if (typeof object.moveto != 'undefined') {
             if (typeof (gamepadAPI.axesStatus[1]) != 'undefined') {
                 if (typeof (gamepadAPI.axesStatus[0]) != 'undefined') {
@@ -1015,7 +1015,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     }
     function gamepad_controlleg(object, speed = 1) { // basic control for objects using the controler
-        // console.log(gamepadAPI.axesStatus[1] * gamepadAPI.axesStatus[0])
+        // //console.log(gamepadAPI.axesStatus[1] * gamepadAPI.axesStatus[0])
         if (typeof object.body != 'undefined') {
             if (typeof (gamepadAPI.axesStatus[3]) != 'undefined') {
                 if (typeof (gamepadAPI.axesStatus[2]) != 'undefined') {
@@ -2493,10 +2493,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 let link = new LineOP(this.body, this.dashtarget)
                                 let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
                                 this.locked = Math.round(hookdot)
-                                console.log(this.locked)
+                                //console.log(this.locked)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                console.log(this)
+                                //console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -3186,7 +3186,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.locked = Math.round(hookdot)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                console.log(this)
+                                //console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -3344,7 +3344,31 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         move() {
             let link = new LineOP(this.target.body, this.body)
-            if (link.hypotenuse() > this.range) {
+            if (link.hypotenuse() < (this.range+this.target.body.radius)+ (this.body.radius ) && this.target.tower == 1) {
+                let dummy = this.target.health
+                this.target.health -= this.melee
+
+                let link = new LineOP(this.body, this.target.body, this.body.color, 2)
+                link.draw()
+
+
+
+                if (dummy > this.target.health) {
+                    if (this.target.activeshield > 0) {
+                        if (this.target.activeshield >= dummy - this.target.health) {
+                            this.target.activeshield -= dummy - this.target.health
+                            this.target.health = dummy
+                        } else {
+                            this.target.health += this.target.activeshield
+                            this.target.activeshield = 0
+                        }
+                    }
+                }
+                if (this.speedbonus > 0) {
+                    this.speedbonus *= .5
+                }
+
+            } else if (link.hypotenuse() > this.range) {
                 let xvec = (this.target.body.x - this.body.x)
                 let yvec = (this.target.body.y - this.body.y)
                 let k = 0
@@ -3366,7 +3390,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
                 this.body.x += xvec
                 this.body.y += yvec
-            } else if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
+            }else  if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
                 let dummy = this.target.health
                 this.target.health -= this.melee
 
@@ -3431,7 +3455,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.body.draw()
             this.healthbar.draw()
 
-            // console.log(this.healthbar)
+            // //console.log(this.healthbar)
 
         }
         collide() {
@@ -3505,7 +3529,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 // this.locked = Math.round(hookdot)
                                 // this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                // console.log(this)
+                                // //console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -3774,7 +3798,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.body.draw()
             this.healthbar.draw()
 
-            // console.log(this.healthbar)
+            // //console.log(this.healthbar)
 
         }
         collide() {
@@ -3849,7 +3873,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 // this.locked = Math.round(hookdot)
                                 // this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                // console.log(this)
+                                // //console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -4591,7 +4615,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.locked = Math.round(hookdot)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                console.log(this)
+                                //console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -5231,7 +5255,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.locked = Math.round(hookdot)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                console.log(this)
+                                //console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -7431,7 +7455,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.locked = Math.round(hookdot)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                console.log(this)
+                                //console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -7585,11 +7609,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
         if (selected >= 2) {
 
             players[0].gamepadSkillsAdapter(new Point(0, 0))
-            // console.log(gamepad_angles())
+            // //console.log(gamepad_angles())
             if (players[0].locked <= 0) {
                 gamepad_control(players[0], players[0].movespeedbase + players[0].speedbonus + players[0].speedboost)
             } else {
-                console.log(players[0].locked)
+                //console.log(players[0].locked)
             }
 
             if (paused == -1) {
