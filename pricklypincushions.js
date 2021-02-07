@@ -3459,9 +3459,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.target = {}
             this.range = 25
             this.player = player
-            this.health = 300
+            this.health = 400
             this.maxhealth = this.health
-            this.melee = 1
+            this.melee = .25
             this.goldvalue = 20
             this.movespeed = .999
             this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "#00ff00")
@@ -3830,7 +3830,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.target = {}
             this.range = 300
             this.player = player
-            this.health = 6000
+            this.health = 16000
             this.tower = 1
             this.maxhealth = this.health
             this.melee = 100
@@ -7301,7 +7301,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.orbcost = 15
             this.orbcooldown = 0
             this.orbdamage = 60
-            this.orbdrain = 100
+            this.orbdrain = 240
             this.slamdamage = 1
             this.slamcooldown = 0
             this.slamdrain = 300
@@ -7528,14 +7528,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (typeof this.turretrange == "undefined") {
                     this.turretrange = 55
                 }
-                fuzz.x = ((Math.random() - .5) * this.turretrange * .7) + this.body.x
-                fuzz.y = ((Math.random() - .5) * this.turretrange * .7) + this.body.y
+                // fuzz.x = ((Math.random() - .5) * this.turretrange * .7) + this.body.x
+                // fuzz.y = ((Math.random() - .5) * this.turretrange * .7) + this.body.y
                 // if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
                 //     if (Math.random() < .005) {
                 this.hooks(fuzz)
                 //     } else if (this.health > this.healthmax * .5) {
                 //         if (this.dashstate == 0) {
-                //             this.orbs(fuzz)
+                            this.orbs(fuzz)
                 //         }
                 //     }
                 // }
@@ -7676,14 +7676,14 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     let linkhyp = link.hypotenuse()
                     if (linkhyp <= this.turretrange) {
                         let pin = new Mob(to.x, to.y, this)
-                        pin.melee += .1
+                        pin.melee = 1.1
                         pin.movespeed = .00001
                         pin.range *= 3
                         pin.health *= 2
                         pin.maxhealth *= 2
                         if (this.ult > 0) {
                             this.ult = 0
-                            pin.melee += .1
+                            pin.melee = 2.2
                             pin.movespeed = .00001
                             pin.range *= 3
                             pin.health *= 2
