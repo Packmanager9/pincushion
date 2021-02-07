@@ -140,6 +140,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.color = color
             this.width = width
         }
+        angle() {
+            return Math.atan2(this.object.y - this.target.y, this.object.x - this.target.x)
+        }
         hypotenuse() {
             let xdif = this.object.x - this.target.x
             let ydif = this.object.y - this.target.y
@@ -880,6 +883,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     let tower = new Tower(players[0].body.x - 110, players[0].body.y - 170, players[0])
                     players[0].army.push(tower)
                 }
+                if (inventrix.isPointInside(TIP_engine)) {
+                    selected++
+                    players[0] = new Inventrix(360, 360, "magenta")
+                    players[0].base = base1
+                    let tower = new Tower(players[0].body.x - 110, players[0].body.y - 170, players[0])
+                    players[0].army.push(tower)
+                }
 
 
             } else if (selected == 1) {
@@ -932,10 +942,19 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     let tower = new Tower(players[1].body.x + 110, players[1].body.y + 170, players[1])
                     players[1].army.push(tower)
                 }
+                if (inventrix.isPointInside(TIP_engine)) {
+                    selected++
+                    players[1] = new Inventrix(360, -500, "cyan")
+                    players[1].base = base2
+                    let tower = new Tower(players[1].body.x + 110, players[1].body.y + 170, players[1])
+                    players[1].army.push(tower)
+                }
             }
 
 
+            if(players[0].locked <= 0){
             players[0].skillsAdapter(TIP_engine)
+            }
             window.addEventListener('pointermove', continued_stimuli);
         });
 
@@ -1677,6 +1696,61 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
     }
+    class MissileOrb {
+        constructor(from, to, owner) {
+            this.body = new Circle(from.x, from.y, 4.25, "purple", 0, 0)
+            this.life = 35
+            if (owner == players[0]) {
+                to.x = this.body.x + (to.x - (canvas.width * .5))
+                to.y = this.body.y + (to.y - (canvas.height * .5))
+                this.body.color = "black"
+            } else {
+                this.body.color = "black"
+            }
+
+            this.touch = new Circle(to.x, to.y, 25, "red")
+
+            console.log(this.body)
+
+            this.body.xmom = 0 - (this.body.x - this.touch.x)
+            this.body.ymom = 0 - (this.body.y - this.touch.y)
+
+            let k = 0
+            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > 8.5) {
+                this.body.xmom *= 0.98
+                this.body.ymom *= 0.98
+                k++
+                if (k > 1000) {
+                    break
+                }
+
+            }
+            k = 0
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < 8.5) {
+                this.body.xmom *= 1.02
+                this.body.ymom *= 1.02
+
+                k++
+                if (k > 1000) {
+                    break
+                }
+            }
+            // }
+        }
+        draw() {
+            this.body.draw()
+            // this.touch.draw()
+        }
+        move() {
+            this.body.move()
+        }
+        unmove() {
+            this.body.unmove()
+        }
+
+
+    }
     class PullOrb {
         constructor(from, to, owner) {
             this.body = new Circle(from.x, from.y, 10, "purple", 0, 0)
@@ -1859,7 +1933,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
     class Fireorb {
         constructor(from, to, owner) {
             this.body = new Circle(from.x, from.y, 9, "purple", 0, 0)
-
             this.lifemax = 100
             this.movereducer = 0
             this.speed = 6
@@ -1872,13 +1945,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             } else {
                 this.body.color = "#00FFAA"
             }
-
-
             this.body.xmom = 0 - (this.body.x - to.x)
             this.body.ymom = 0 - (this.body.y - to.y)
-
             let k = 0
-            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > this.speed) {
                 this.body.xmom *= 0.98
                 this.body.ymom *= 0.98
@@ -1898,11 +1967,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     break
                 }
             }
-            // }
         }
         draw() {
             this.body.draw()
-
         }
         normalize() {
             let k = 0
@@ -1913,13 +1980,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (k > 1000) {
                     break
                 }
-
             }
             k = 0
             while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < this.speed - this.movereducer) {
                 this.body.xmom *= 1.02
                 this.body.ymom *= 1.02
-
                 k++
                 if (k > 1000) {
                     break
@@ -1930,7 +1995,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.life < this.lifemax * .55) {
                 this.body.xmom = 0 - (this.body.x - this.owner.body.x)
                 this.body.ymom = 0 - (this.body.y - this.owner.body.y)
-
                 this.movereducer -= this.speed / (this.lifemax)
                 this.normalize()
                 this.body.move()
@@ -1943,8 +2007,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.body.move()
             }
         }
-
-
     }
 
     class Hook {
@@ -1990,6 +2052,58 @@ window.addEventListener('DOMContentLoaded', (event) => {
         draw() {
             this.link = new LineOP(this.body, this.owner.body, this.body.color, 2)
             this.link.draw()
+            this.body.draw()
+        }
+        move() {
+            this.body.move()
+        }
+
+
+    }
+
+    class Stunorb {
+        constructor(from, to, owner) {
+            this.body = new Circle(from.x, from.y, 9, "purple", 0, 0)
+            this.life = 54
+            if (owner == players[0]) {
+                to.x = this.body.x + (to.x - (canvas.width * .5))
+                to.y = this.body.y + (to.y - (canvas.height * .5))
+                this.body.color = "Blue"
+            } else {
+                this.body.color = "Blue"
+            }
+
+            this.owner = owner
+
+            this.body.xmom = 0 - (this.body.x - to.x)
+            this.body.ymom = 0 - (this.body.y - to.y)
+
+            let k = 0
+            // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > 2.5) {
+                this.body.xmom *= 0.98
+                this.body.ymom *= 0.98
+                k++
+                if (k > 1000) {
+                    break
+                }
+
+            }
+            k = 0
+            while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < 2.5) {
+                this.body.xmom *= 1.02
+                this.body.ymom *= 1.02
+
+                k++
+                if (k > 1000) {
+                    break
+                }
+            }
+            // }
+        }
+        draw() {
+            // this.link = new LineOP(this.body, this.owner.body, this.body.color, 2)
+            // this.link.draw()
             this.body.draw()
         }
         move() {
@@ -2571,16 +2685,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    }else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = (-1 * (this.movespeedbase + this.speedboost)) + .0000001
+                                let hookdot = 200
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -3261,16 +3403,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    }else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = (-1 * (this.movespeedbase + this.speedboost)) + .0000001
+                                let hookdot = 200
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -3344,7 +3514,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
         move() {
             let link = new LineOP(this.target.body, this.body)
-            if (link.hypotenuse() < (this.range+this.target.body.radius)+ (this.body.radius ) && this.target.tower == 1) {
+            if (link.hypotenuse() < (this.range + this.target.body.radius) + (this.body.radius) && this.target.tower == 1) {
                 let dummy = this.target.health
                 this.target.health -= this.melee
 
@@ -3390,7 +3560,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 }
                 this.body.x += xvec
                 this.body.y += yvec
-            }else  if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
+            } else if (link.hypotenuse() < (this.range + (this.body.radius * 2))) {
                 let dummy = this.target.health
                 this.target.health -= this.melee
 
@@ -3423,8 +3593,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         if (players[t].army[k].body.doesPerimeterTouch(this.body)) {
                             const distance = ((new LineOP(this.body, players[t].army[k].body)).hypotenuse()) - (players[t].army[k].body.radius + this.body.radius)
                             const angleRadians = Math.atan2(players[t].army[k].body.y - this.body.y, players[t].army[k].body.x - this.body.x);
-                            this.body.x += (Math.cos(angleRadians) * distance) / 2
-                            this.body.y += (Math.sin(angleRadians) * distance) / 2
+                            if (this.tower != 1) {
+                                this.body.x += (Math.cos(angleRadians) * distance) / 2
+                                this.body.y += (Math.sin(angleRadians) * distance) / 2
+                            }
                             if (players[t].army[k].tower != 1) {
                                 if (players[t].locked <= 0) {
                                     players[t].army[k].body.x -= (Math.cos(angleRadians) * distance) / 2
@@ -3439,8 +3611,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (players[t].body.doesPerimeterTouch(this.body)) {
                     const distance = ((new LineOP(this.body, players[t].body)).hypotenuse()) - (players[t].body.radius + this.body.radius)
                     const angleRadians = Math.atan2(players[t].body.y - this.body.y, players[t].body.x - this.body.x);
-                    this.body.x += (Math.cos(angleRadians) * distance) / 2
-                    this.body.y += (Math.sin(angleRadians) * distance) / 2
+                    if (this.tower != 1) {
+                        this.body.x += (Math.cos(angleRadians) * distance) / 2
+                        this.body.y += (Math.sin(angleRadians) * distance) / 2
+                    }
                 }
             }
         }
@@ -3593,16 +3767,36 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    }else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.movespeed = .00001
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -3937,16 +4131,35 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    }else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -4690,16 +4903,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    }else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = (-1 * (this.movespeedbase + this.speedboost)) + .0000001
+                                let hookdot = 200
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -5330,16 +5571,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    }else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = (-1 * (this.movespeedbase + this.speedboost)) + .0000001
+                                let hookdot = 200
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -6065,16 +6334,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    }else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = (-1 * (this.movespeedbase + this.speedboost)) + .0000001
+                                let hookdot = 200
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -6168,7 +6465,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.basicrange = 25
             this.basictarget = {}
             this.basicdamage = 30
-            this.dashrange = 199 
+            this.dashrange = 199
             this.dashcooldown = 0
 
             this.hooklist = []
@@ -6380,13 +6677,13 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 this.dashslam(fuzz)
 
                 if (Math.random() < .003) {
-                this.slash(fuzz)
+                    this.slash(fuzz)
                 }
                 // fuzz.x = ((Math.random() - .5) * this.gluerange * .7) + this.body.x
                 // // fuzz.y = ((Math.random() - .5) * this.gluerange * .7) + this.body.y
                 // if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
                 //     if (Math.random() < .005) {
-                        this.aura(fuzz)
+                this.aura(fuzz)
                 //     } else if (this.health > this.healthmax * .5) {
                 //         if (this.dashstate == 0) {
                 //             this.orbs(fuzz)
@@ -6408,8 +6705,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     circ.life = 10
                     circ.body = circ
                     this.orblist[0] = circ
-                    this.orbcooldown=this.orbdrain
-                    this.mana-=this.orbcost
+                    this.orbcooldown = this.orbdrain
+                    this.mana -= this.orbcost
                 }
             }
 
@@ -6431,17 +6728,17 @@ window.addEventListener('DOMContentLoaded', (event) => {
                     this.speedboost = 1
                     this.empowered = 1
 
-                    this.dashcooldown=this.dashdrain
-                    this.mana-=this.dashcost
+                    this.dashcooldown = this.dashdrain
+                    this.mana -= this.dashcost
                 }
             }
 
 
         }
         aura() {
-            if(this.speedboost < 4){
-                this.speedboost*=1.003
-            }else{
+            if (this.speedboost < 4) {
+                this.speedboost *= 1.003
+            } else {
                 this.speedboost = 0
                 this.empowered = 0
             }
@@ -6658,7 +6955,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 } else if (players[0].aliensquid == 1) {
                     towards.x = (Math.cos(gamepad_angles().left) * 120) + this.body.x
                     towards.y = (Math.sin(gamepad_angles().left) * 120) + this.body.y
-                }else if (players[0].demontaur == 1) {
+                } else if (players[0].demontaur == 1) {
                     towards.x = (Math.cos(gamepad_angles().left) * 30) + this.body.x
                     towards.y = (Math.sin(gamepad_angles().left) * 30) + this.body.y
                 }
@@ -6733,11 +7030,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.basictarget.health > 0) {
                 if (this.basictimer % this.basicrate == 0) {
                     this.basictarget.health -= this.basicdamage
-                    if(this.empowered ==   1){
-                 
-                        this.basictarget.body.xmom =( (this.basictarget.body.x-this.body.x)/6)*this.speedboost
-                        this.basictarget.body.ymom =( (this.basictarget.body.y-this.body.y)/6)*this.speedboost
-                        for(let t =0;t<3;t++){
+                    if (this.empowered == 1) {
+
+                        this.basictarget.body.xmom = ((this.basictarget.body.x - this.body.x) / 6) * this.speedboost
+                        this.basictarget.body.ymom = ((this.basictarget.body.y - this.body.y) / 6) * this.speedboost
+                        for (let t = 0; t < 3; t++) {
                             this.basictarget.body.move()
                             this.basictarget.health -= this.basicdamage
                         }
@@ -6895,11 +7192,986 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    }else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = (-1 * (this.movespeedbase + this.speedboost)) + .0000001
+                                let hookdot = 200
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
+                            }
+                        }
+                    }
+                    if (this.health <= 0) {
+                        players[t].gold += this.goldvalue
+                        break
+                    }
+                }
+            }
+
+
+            if (dummy > this.health) {
+                if (this.activeshield > 0) {
+                    if (this.activeshield >= dummy - this.health) {
+                        this.activeshield -= dummy - this.health
+                        this.health = dummy
+                    } else {
+                        this.health += this.activeshield
+                        this.activeshield = 0
+                    }
+                }
+            }
+        }
+
+    }
+
+
+    class Inventrix {
+        constructor(x, y, color) {
+            this.speedboost = 0
+            this.theftcount = 0
+            this.theftbonus = 10
+            this.gold = 500
+            this.goldvalue = 300
+            this.lockholder = -1
+            this.ult = 0
+            this.body = new Circle(x, y, 10, color)
+            this.movespeedbase = 1
+            this.slamdrop = -.8
+            this.speedbonus = 0
+            this.shieldcost = 30
+            this.shieldpower = 150
+            this.shieldtimer = 100
+            this.shielddrain = 140
+            this.shieldcooldown = 0
+            this.shieldstate = 0
+            this.health = 800
+            this.healthmax = this.health
+            this.mana = 400
+            this.manamax = this.mana
+            this.moveto = {}
+            this.moveto.x = this.body.x - 1.01
+            this.moveto.y = this.body.y
+            this.moveto.radius = this.body.radius
+            this.dashtarget = {}
+            this.dashtarget.x = this.body.x
+            this.dashtarget.y = this.body.y
+            this.dashtarget.radius = 0
+            this.slamcost = 40
+            this.dashstate = -1
+            this.mps = .2
+            this.hps = .45
+            this.gluerange = 75
+            this.flippower = 150
+            this.fliprange = 50
+            this.slams = []
+            this.orblist = []
+            this.locked = 0
+            this.orbcost = 15
+            this.orbcooldown = 0
+            this.orbdamage = 60
+            this.orbdrain = 100
+            this.slamdamage = 1
+            this.slamcooldown = 0
+            this.slamdrain = 300
+            this.army = []
+            this.spawner = 0
+            this.spawnpoint = new Point(this.body.x, this.body.y)
+            this.blindmonk = 0
+            this.foxghost = 0
+            this.demontaur = 0
+            this.inventrix = 1
+            this.robofister = 0
+            this.pincushion = 0
+            this.aliensquid = 0
+            this.gasbag = 0
+            this.ultcost = 100
+            this.ultcooldown = 0
+            this.ultdrain = 1000
+            this.ultrun = 0
+            this.basicrate = 55
+            this.basictimer = 0
+            this.basicrange = 80
+            this.basictarget = {}
+            this.basicdamage = 55
+            this.dashrange = 199
+            this.dashcooldown = 0
+            this.axes = []
+            this.hooklist = []
+            this.hookcost = 55
+            this.hookcooldown = 0
+            this.hookdamage = 120
+            this.hookdrain = 180
+
+        }
+        marshal() {
+            if (this.spawner % 1000 == 20) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 40) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 60) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 80) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            if (this.spawner % 1000 == 100) {
+                let minion = new Mob(this.base.body.x, this.base.body.y, this)
+                this.army.push(minion)
+            }
+            this.spawner++
+            this.burial()
+            this.command()
+            this.burial()
+        }
+        command() {
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].draw()
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+        }
+        burial() {
+            for (let t = 0; t < this.army.length; t++) {
+                if (this.army[t].health <= 0) {
+                    this.army.splice(t, 1)
+                }
+            }
+            for (let t = 0; t < this.army.length; t++) {
+                this.army[t].drawbar()
+            }
+
+        }
+        cooldown() {
+            this.slamcooldown--
+            this.shieldcooldown--
+            this.orbcooldown--
+            this.ultcooldown--
+            this.ulttimer--
+            this.dashcooldown--
+            this.hookcooldown--
+            if (this.dashcooldown <= 0) {
+                this.dashstate = -1
+            }
+        }
+        regen() {
+            this.marshal()
+            if (this.health > 0) {
+          
+                    this.movespeedbase = 1
+                
+                this.mana += this.mps
+                this.health += this.hps
+                if (this.health > this.healthmax) {
+                    this.health = this.healthmax
+                }
+                if (this.mana > this.manamax) {
+                    this.mana = this.manamax
+                }
+            } else {
+                if (this == players[0]) {
+                    canvas_context.translate(this.body.x - this.spawnpoint.x, this.body.y - this.spawnpoint.y)
+                }
+                this.health = this.healthmax
+                this.mana = this.manamax
+                this.body.y = this.spawnpoint.y
+                this.body.x = this.spawnpoint.x
+                this.moveto.x = this.body.x + 1
+                this.moveto.y = this.body.y + 1
+                this.speedbonus = 0
+            }
+            this.speedbonus *= .999
+        }
+        control(to) {
+            if (this.locked <= 0) {
+                if (this == players[0]) {
+                    this.moveto.x = this.body.x + (to.x - (canvas.width * .5))
+                    this.moveto.y = this.body.y + (to.y - (canvas.height * .5))
+                } else {
+                    this.moveto.x = to.x
+                    this.moveto.y = to.y
+                }
+            }
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
+            }
+        }
+        drive() {
+            if (typeof this.speedbonus == "undefined") {
+                this.speedbonus = 0
+            }
+            if (this.locked <= 0 || this.locked == this.lockholder) {
+                this.body.xmom = 0 - (this.body.x - this.moveto.x)
+                this.body.ymom = 0 - (this.body.y - this.moveto.y)
+
+                // if(Math.sqrt(Math.abs(this.body.xmom*this.body.xmom)+Math.abs(this.body.ymom*this.body.ymom)) != 0){
+                let k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) > (this.movespeedbase + this.speedbonus + this.speedboost)) {
+                    this.body.xmom *= 0.98
+                    this.body.ymom *= 0.98
+                    if (k == 10000) {
+                        break
+                    }
+                }
+                k = 0
+                while (Math.sqrt(Math.abs(this.body.xmom * this.body.xmom) + Math.abs(this.body.ymom * this.body.ymom)) < (this.movespeedbase + this.speedbonus + this.speedboost)) {
+                    this.body.xmom *= 1.02
+                    this.body.ymom *= 1.02
+                    if (k == 10000) {
+                        break
+                    }
+                }
+            }
+            if (this.body.doesPerimeterTouch(this.dashtarget)) {
+                this.locked = 0
+            }
+            if (Math.round(this.locked) == 0) {
+                this.speedbonus = 0
+            }
+        }
+        gamepadSkillsAdapter(to) {
+
+            let towards = new Point(0, 0)
+            towards.x = (Math.cos(gamepad_angles().left) * 100) + 360
+            towards.y = (Math.sin(gamepad_angles().left) * 100) + 360
+
+            let link = new LineOP(this.body, towards)
+            link.draw()
+
+            if (gamepadAPI.buttonsStatus.includes('Left-Trigger')) {
+                this.hooks(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('Right-Trigger')) {
+                towards.x = (Math.cos(gamepad_angles().left) * this.gluerange) + this.body.x
+                towards.y = (Math.sin(gamepad_angles().left) * this.gluerange) + this.body.x
+                this.orbs(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('RB')) {
+
+                towards.x = (Math.cos(gamepad_angles().left) * this.fliprange) + this.body.x
+                towards.y = (Math.sin(gamepad_angles().left) * this.fliprange) + this.body.y
+                this.slam(towards)
+            }
+            if (gamepadAPI.buttonsStatus.includes('LB')) {
+                this.ulting()
+            }
+        }
+        skillsAdapter(to) {
+            if (this == players[0]) {
+                if (keysPressed['q']) {
+                    this.hooks(to)
+                }
+                if (keysPressed['w']) {
+                    this.orbs(to)
+                }
+                if (keysPressed['e']) {
+                    this.slam(to)
+                }
+                if (keysPressed['r']) {
+                    this.ulting()
+                }
+            } else {
+                let fuzz = {}
+                fuzz.x = ((Math.random() - .5) * 10) + players[0].body.x
+                fuzz.y = ((Math.random() - .5) * 10) + players[0].body.y
+                this.ulting()
+                this.slam(fuzz)
+
+                if (Math.random() < .003) {
+                    // this.orbs(fuzz)
+                }
+
+                if (typeof this.turretrange == "undefined") {
+                    this.turretrange = 55
+                }
+                fuzz.x = ((Math.random() - .5) * this.turretrange * .7) + this.body.x
+                fuzz.y = ((Math.random() - .5) * this.turretrange * .7) + this.body.y
+                // if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
+                //     if (Math.random() < .005) {
+                this.hooks(fuzz)
+                //     } else if (this.health > this.healthmax * .5) {
+                //         if (this.dashstate == 0) {
+                //             this.orbs(fuzz)
+                //         }
+                //     }
+                // }
+            }
+
+        }
+        slash() {
+
+            if (typeof this.orbrange == "undefined") {
+                this.orbrange = 55
+
+            }
+            if (this.orbcooldown <= 0) {
+                if (this.mana >= this.orbcost) {
+                    let circ = new Circle(this.body.x, this.body.y, this.orbrange, "#66666688")
+                    circ.life = 10
+                    circ.body = circ
+                    this.orblist[0] = circ
+                    this.orbcooldown = this.orbdrain
+                    this.mana -= this.orbcost
+                }
+            }
+
+
+        }
+        dashslam() {
+
+            if (typeof this.dashdrain == "undefined") {
+                this.dashdrain = 240
+            }
+            if (typeof this.dashcost == "undefined") {
+                this.dashcost = 60
+            }
+            if (typeof this.empowered == "undefined") {
+                this.empowered = 0
+            }
+            if (this.dashcooldown <= 0) {
+                if (this.mana >= this.dashcost) {
+                    this.speedboost = 1
+                    this.empowered = 1
+
+                    this.dashcooldown = this.dashdrain
+                    this.mana -= this.dashcost
+                }
+            }
+
+
+        }
+        aura() {
+            // if (this.speedboost < 4) {
+            //     this.speedboost *= 1.003
+            // } else {
+            //     this.speedboost = 0
+            //     this.empowered = 0
+            // }
+            if (typeof this.auratimer == "undefined") {
+                this.auratimer = 0
+
+            }
+            if (typeof this.aurarange == "undefined") {
+                this.aurarange = 80
+
+            }
+            // if (keysPressed['e'] || gamepadAPI.buttonsStatus.includes('RB')) {
+            //     if (this.hookcooldown <= 0) {
+            //         if (this.mana > this.hookcost) {
+            //             this.auratimer = 300
+            //             this.mana -= this.hookcost
+            //             this.hookcooldown = this.hookdrain
+            //         }
+            //     }
+            // }
+            // if (this.auratimer > 0) {
+            //     this.auratimer--
+            //     let circ = new Circle(this.body.x, this.body.y, this.aurarange, "00ffaa88")
+            //     canvas_context.strokeStyle = circ.color
+            //     canvas_context.beginPath()
+            //     canvas_context.arc(circ.x, circ.y, circ.radius, 0, Math.PI * 2, true)
+            //     canvas_context.stroke()
+            //     canvas_context.closePath()
+
+            //     let innercirc = new Circle(this.body.x, this.body.y, this.aurarange, "#00ffaa88")
+            //     canvas_context.strokeStyle = innercirc.color
+            //     canvas_context.beginPath()
+            //     canvas_context.arc(innercirc.x, innercirc.y, innercirc.radius, 0, Math.PI * 2, true)
+            //     canvas_context.stroke()
+            //     canvas_context.fill()
+            //     canvas_context.closePath()
+            //     innercirc.body = innercirc
+            //     this.slams[0] = innercirc
+
+
+            // } else {
+
+            //     this.slams = []
+            // }
+
+
+        }
+
+        hooks(to) {
+            if (this.hookcooldown <= 0) {
+                if (this.mana > this.hookcost) {
+                    if (this.hookcooldown <= 0) {
+                        let pin = new Stunorb(this.body, to, this)
+                        if (this.ult > 0) {
+                            this.ult = 0
+                            pin.body.radius *= 1.5
+                        }
+                        this.hooklist.push(pin)
+                        this.mana -= this.hookcost
+                        this.hookcooldown = this.hookdrain
+                    }
+                }
+            }
+        }
+        hookdraw() {
+            for (let t = 0; t < this.hooklist.length; t++) {
+                this.hooklist[t].move()
+                this.hooklist[t].draw()
+                this.hooklist[t].life -= 1
+            }
+            for (let t = 0; t < this.hooklist.length; t++) {
+                if (this.hooklist[t].life <= 0) {
+                    this.hooklist.splice(t, 1)
+                }
+            }
+        }
+        slam(to) {
+
+            if (typeof this.turretrange == "undefined") {
+                this.turretrange = 55
+
+            }
+            if (this.mana >= this.slamcost) {
+                if (this.slamcooldown <= 0) {
+                    let link = new LineOP(this.body, to)
+                    let linkhyp = link.hypotenuse()
+                    if (linkhyp <= this.turretrange) {
+                        let pin = new Mob(to.x, to.y, this)
+                        pin.melee += .1
+                        pin.movespeed = .00001
+                        pin.range *= 3
+                        pin.health *= 2
+                        pin.maxhealth *= 2
+                        if (this.ult > 0) {
+                            this.ult = 0
+                            pin.melee += .1
+                            pin.movespeed = .00001
+                            pin.range *= 3
+                            pin.health *= 2
+                            pin.maxhealth *= 2
+                            pin.body.radius*=1.5
+                        }
+                        pin.tower = 1
+                        pin.body.color = "grey"
+                        this.army.push(pin)
+                        this.slamcooldown = this.slamdrain
+                        this.mana -= this.slamcost
+                    }
+                }
+            }
+
+        }
+        slamdraw() {
+            for (let t = 0; t < this.slams.length; t++) {
+                this.slams[t].move()
+                this.slams[t].draw()
+                this.slams[t].life -= .2
+            }
+            for (let t = 0; t < this.slams.length; t++) {
+                if (this.slams[t].life <= 0) {
+                    this.slams.splice(t, 1)
+                }
+            }
+
+        }
+        ulting(to) {
+            if (this.mana >= this.ultcost) {
+                if (this.ultcooldown <= 0) {
+                    this.ult = 1
+                    this.ultcooldown = this.ultdrain
+                    this.mana-=this.ultcost
+                }
+            }
+        }
+        shielder(to) {
+            if (this.mana >= this.shieldcost) {
+                if (this.shieldcooldown <= 0) {
+                    this.activeshield = this.shieldpower
+                    this.shieldcooldown = this.shielddrain
+                }
+            }
+        }
+        orbs(to) {
+
+
+            if (this.orbcooldown <= 0) {
+                if (this.mana > this.orbcost) {
+                    if (this.orbcooldown <= 0) {
+                        // console.log(to)
+
+                        if (typeof (gamepadAPI.axesStatus[2]) != 'undefined') {
+                            if (typeof (gamepadAPI.axesStatus[3]) != 'undefined') {
+
+
+                                // to.x = (Math.cos(gamepad_angles().left) * this.gluerange) +  this.body.x
+                                // to.y = (Math.sin(gamepad_angles().left) * this.gluerange) +  this.body.x
+
+                                if (Math.abs(gamepadAPI.axesStatus[2]) + Math.abs(gamepadAPI.axesStatus[3]) >= .1) {
+                                    let point1 = new Point(gamepadAPI.axesStatus[2], 0)
+                                    let point2 = new Point(0, gamepadAPI.axesStatus[3])
+
+                                    to.x = this.body.x + gamepadAPI.axesStatus[2] * this.gluerange
+                                    to.y = this.body.y + gamepadAPI.axesStatus[3] * this.gluerange
+                                    let link = new LineOP(point1, point2)
+                                    to.x = this.body.x + ((to.x - this.body.x) * link.hypotenuse())
+                                    to.y = this.body.y + ((to.y - this.body.y) * link.hypotenuse())
+                                    this.axes[0] = gamepadAPI.axesStatus[2]
+                                    this.axes[1] = gamepadAPI.axesStatus[3]
+
+                                } else {
+                                    let point1 = new Point(this.axes[0], 0)
+                                    let point2 = new Point(0, this.axes[1])
+
+                                    to.x = this.body.x + this.axes[0] * this.gluerange
+                                    to.y = this.body.y + this.axes[1] * this.gluerange
+                                    let link = new LineOP(point1, point2)
+                                    to.x = this.body.x + ((to.x - this.body.x) * link.hypotenuse())
+                                    to.y = this.body.y + ((to.y - this.body.y) * link.hypotenuse())
+
+                                }
+
+
+
+                                // console.log(to)
+                            }
+                        }
+
+
+                        let angle = (new LineOP(to, this.body)).angle()
+                        let ratio = (new LineOP(this.body, to)).hypotenuse() / (this.gluerange * 1.41)
+                        // ratio-=.5
+                        angle -= (ratio * (Math.PI / 1.5))
+
+
+                        this.bodyholder = new Circle(this.body.x, this.body.y, 10, "transparent")
+
+                        if (this.ult > 0) {
+                            this.ult = 0
+                            for (let k = 0; k < 5; k++) {
+                                let angle = (new LineOP(to, this.body)).angle()
+                                let ratio = (new LineOP(this.body, to)).hypotenuse() / (this.gluerange * 1.41)
+                                // ratio-=.5
+                                angle -= (ratio * (Math.PI / 1.5))
+        
+        
+                                this.bodyholder = new Circle(this.body.x, this.body.y, 10, "transparent")
+                                for (let t = 0; t < 5; t++) {
+                                    let point = new Point(this.bodyholder.x - (this.body.x - 360) + (Math.cos(angle) * 100), this.bodyholder.y - (this.body.y - 360) + (Math.sin(angle) * 100))
+                                    angle += ((ratio * (Math.PI / 1.5))) / 2
+                                    let pin = new MissileOrb(this.bodyholder, point, this)
+                                    for (let g = 0; g < k; g++) {
+                                        pin.body.unmove()
+                                    }
+                                    this.orblist.push(pin)
+                                }
+                            }
+                        } else {
+
+                            for (let t = 0; t < 5; t++) {
+                                let point = new Point(this.bodyholder.x - (this.body.x - 360) + (Math.cos(angle) * 100), this.bodyholder.y - (this.body.y - 360) + (Math.sin(angle) * 100))
+                                angle += ((ratio * (Math.PI / 1.5))) / 2
+                                let pin = new MissileOrb(this.bodyholder, point, this)
+                                for (let k = 0; k < 3; k++) {
+                                    pin.unmove()
+                                }
+
+                                this.orblist.push(pin)
+                            }
+                        }
+                        this.mana -= this.orbcost
+                        this.orbcooldown = this.orbdrain
+                    }
+                }
+            }
+        }
+        ultdash(to) {
+            let link = new LineOP(this.body, to)
+            if (link.hypotenuse() <= this.dashrange) {
+                if (this.ultcooldown <= 0) {
+                    if (this.mana >= this.ultcost) {
+                        this.dashtate = 2
+                        this.ulttimer = 100
+                        this.empowered = 1
+                        this.dashtarget.x = to.x
+                        this.dashtarget.y = to.y
+                        this.moveto.x = this.dashtarget.x
+                        this.moveto.y = this.dashtarget.y
+                        this.moveto.radius = this.dashtarget.radius
+                        this.speedbonus = 10
+                        this.mana -= this.ultcost
+                        this.ultcooldown = this.ultdrain
+                        let link = new LineOP(this.body, this.dashtarget)
+                        this.locked = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                        this.lockholder = this.locked
+                    }
+                }
+            }
+        }
+        // orbs(to) {
+
+        //     if (this.orbcooldown <= 0) {
+        //         if (this.mana > this.orbcost) {
+        //             if (this.orbcooldown <= 0) {
+        //                 let pin = new Fireorb(this.body, to, this)
+        //                 this.orblist.push(pin)
+        //                 this.mana -= this.orbcost
+        //                 this.orbcooldown = this.orbdrain
+        //                 this.dashstate = 0
+        //             }
+        //         }
+        //     }
+        // }
+        orbdraw() {
+            for (let t = 0; t < this.orblist.length; t++) {
+                this.orblist[t].move()
+                this.orblist[t].draw()
+                this.orblist[t].life -= 1
+            }
+            for (let t = 0; t < this.orblist.length; t++) {
+                if (this.orblist[t].life <= 0) {
+                    this.orblist.splice(t, 5)
+                }
+            }
+        }
+        draw() {
+            // console.log(this.ult)
+            if (this == players[0]) {
+                canvas_context.fillStyle = "gold"
+                canvas_context.font = "20px arial"
+                canvas_context.fillText(`${this.gold}`, this.body.x - 340, this.body.y - 340)
+            }
+
+            if (this == players[0]) {
+                let towards = new Point(0, 0)
+                if (players[0].pincushion == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 100) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 100) + this.body.y
+                } else if (players[0].gasbag == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 50) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 50) + this.body.y
+                } else if (players[0].blindmonk == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 100) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 100) + this.body.y
+                } else if (players[0].robofister == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 200) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 200) + this.body.y
+                } else if (players[0].foxghost == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 120) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 120) + this.body.y
+                } else if (players[0].aliensquid == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 120) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 120) + this.body.y
+                } else if (players[0].demontaur == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 30) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 30) + this.body.y
+                } else if (players[0].inventrix == 1) {
+                    towards.x = (Math.cos(gamepad_angles().left) * 80) + this.body.x
+                    towards.y = (Math.sin(gamepad_angles().left) * 80) + this.body.y
+                }
+
+
+                let link = new LineOP(this.body, towards, "white", 1)
+                link.draw()
+            }
+
+            this.aura()
+            this.regen()
+            this.drive()
+            this.locked--
+            let check = new LineOP(this.moveto, this.body)
+            if (check.hypotenuse() > (.7 * (this.movespeedbase + this.speedbonus))) {
+                this.body.move()
+            } else if (this.locked > 0) {
+                this.body.move()
+            }
+
+            if (keysPressed['e']) {
+                if (this == players[0]) {
+                    let circ = new Circle(this.body.x, this.body.y, this.gluerange, "black")
+                    canvas_context.strokeStyle = circ.color
+                    canvas_context.beginPath()
+                    canvas_context.arc(circ.x, circ.y, circ.radius, 0, Math.PI * 2, true)
+                    canvas_context.stroke()
+                    canvas_context.closePath()
+                }
+            }
+            this.body.draw()
+            this.basic()
+            if (this.activeshield > 0) {
+                let shield = new Circle(this.body.x, this.body.y, (this.activeshield * .020), "yellow")
+                shield.draw()
+            }
+            this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "green")
+            this.healthbar.width = (this.health / this.healthmax) * this.body.radius * 2
+            this.manabar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 1.6), this.body.radius * 2, this.body.radius * .25, "blue")
+            this.manabar.width = (this.mana / this.manamax) * this.body.radius * 2
+            this.healthbar.draw()
+            this.manabar.draw()
+            this.slamdraw()
+            this.hookdraw()
+            this.orbdraw()
+            this.cooldown()
+            this.collide()
+        }
+        basic() {
+            this.basictimer++
+            let min = this.basicrange
+            this.basictarget = {}
+            for (let t = 0; t < players.length; t++) {
+                if (players[t] != this) {
+                    for (let k = 0; k < players[t].army.length; k++) {
+                        let link = new LineOP(this.body, players[t].army[k].body)
+                        if (link.hypotenuse() <= min) {
+                            min = link.hypotenuse()
+                            this.basictarget = players[t].army[k]
+                        }
+                        let link2 = new LineOP(this.body, players[t].body)
+                        if (link2.hypotenuse() <= this.basicrange) {
+                            this.basictarget = players[t]
+                        }
+                    }
+                }
+            }
+
+            this.basicAttack()
+        }
+        basicAttack() {
+            if (this.basictarget.health > 0) {
+                if (this.basictimer % this.basicrate == 0) {
+                    this.basictarget.health -= this.basicdamage
+                    if (this.empowered == 1) {
+
+                        this.basictarget.body.xmom = ((this.basictarget.body.x - this.body.x) / 6) * this.speedboost
+                        this.basictarget.body.ymom = ((this.basictarget.body.y - this.body.y) / 6) * this.speedboost
+                        for (let t = 0; t < 3; t++) {
+                            this.basictarget.body.move()
+                            this.basictarget.health -= this.basicdamage
+                        }
+                        this.speedboost = 0
+                    }
+
+                }
+                if (this.basictimer % this.basicrate <= 9) {
+                    let link = new LineOP(this.body, this.basictarget.body, "black", 4)
+                    link.draw()
+                }
+            }
+        }
+        collide() {
+            let dummy = this.health
+            for (let t = 0; t < players.length; t++) {
+                if (this != players[t]) {
+                    if (players[t].gasbag == 1) {
+                        for (let k = 0; k < players[t].gasses.length; k++) {
+                            if (players[t].gasses[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].gasdamage)
+                            }
+                        }
+                        for (let k = 0; k < players[t].glues.length; k++) {
+                            if (players[t].glues[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].gluedamage)
+                                this.speedbonus = players[t].gluedrop
+                            }
+                        }
+                    } else if (players[t].pincushion == 1) {
+                        for (let k = 0; k < players[t].spears.length; k++) {
+                            if (players[t].spears[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                                players[t].spears[k].life = 0
+                            } else if (players[t].spears[k].shaft.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].speardamage - (players[t].spears[k].life))
+                                players[t].spears[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].traps.length; k++) {
+                            if (players[t].traps[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].trapdamage)
+                                this.speedbonus = players[t].trapdrop
+                                players[t].traps[k].life = 0
+                            }
+                        }
+                    } else if (players[t].blindmonk == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].dashtarget.x = this.body.x
+                                players[t].dashtarget.y = this.body.y
+                                players[t].dashstate = 1
+                                players[t].orblist[k].life = 0
+                            }
+                        }
+                    } else if (players[t].robofister == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = 7
+                                let link = new LineOP(this.body, this.dashtarget)
+                                let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                    } else if (players[t].aliensquid == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                this.speedbonus = players[t].slamdrop
+                            }
+                        }
+                        for (let k = 0; k < players[t].spears.length; k++) {
+                            if (players[t].spears[k].engage == 0) {
+                                if (players[t].spears[k].body.doesPerimeterTouch(this.body)) {
+                                    this.health -= players[t].speardamage
+                                    players[t].spears[k].life = 0
+                                }
+                            } else {
+                                if (players[t].spears[k].body1.doesPerimeterTouch(this.body)) {
+                                    if (players[t].spears[k].life1 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life1 = 0
+                                    }
+                                }
+                                if (players[t].spears[k].body2.doesPerimeterTouch(this.body)) {
+                                    if (players[t].spears[k].life2 != 0) {
+                                        this.health -= players[t].speardamage
+                                        players[t].spears[k].life2 = 0
+                                    }
+                                }
+                            }
+                        }
+                    } else if (players[t].foxghost == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].slamdamage = 0
+                                players[t].theftcount++
+                                if (players[t].theftcount >= 9) {
+                                    players[t].theftcount = 0
+                                    players[t].health += players[t].theftbonus
+                                }
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].theftcount++
+                                if (players[t].theftcount >= 9) {
+                                    players[t].theftcount = 0
+                                    players[t].health += players[t].theftbonus
+                                }
+                            }
+                        }
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = 7
+                                let link = new LineOP(this.body, this.dashtarget)
+                                let hookdot = ((link.hypotenuse()) / (this.movespeedbase + this.speedbonus)) * 2
+                                this.speedbonus = -.4
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                                players[t].theftcount++
+                                if (players[t].theftcount >= 9) {
+                                    players[t].theftcount = 0
+                                    players[t].health += players[t].theftbonus
+                                }
+                            }
+                        }
+                    } else if (players[t].demontaur == 1) {
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    } else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = (-1 * (this.movespeedbase + this.speedboost)) + .0000001
+                                let hookdot = 200
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
@@ -7214,12 +8486,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
         }
         ulting(to) {
-            if (this.mana >= this.slamcost) {
-                if (this.slamcooldown <= 0) {
-                    let pin = new RoboSlam(this.body, to, this)
-                    this.slams.push(pin)
-                    this.slamcooldown = this.slamdrain
-                    this.mana -= this.slamcost
+            if (this.mana >= this.ultcost) {
+                if (this.ultcooldown <= 0) {
+                    this.ult=1
+                    this.ultcooldown = this.ultdrain
+                    this.mana -= this.ultcost
                 }
             }
 
@@ -7530,16 +8801,44 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 }
                             }
                         }
-                    } else if(players[t].demontaur == 1){
+                    } else if (players[t].demontaur == 1) {
                         for (let k = 0; k < players[t].slams.length; k++) {
                             if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].slamdamage)
-                                players[t].health += (players[t].slamdamage)*.2
+                                players[t].health += (players[t].slamdamage) * .2
                             }
                         }
                         for (let k = 0; k < players[t].orblist.length; k++) {
                             if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
                                 this.health -= (players[t].orbdamage)
+                            }
+                        }
+                    }else if (players[t].inventrix == 1) {
+                        for (let k = 0; k < players[t].hooklist.length; k++) {
+                            if (players[t].hooklist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].hookdamage)
+                                this.dashtarget.x = players[t].body.x
+                                this.dashtarget.y = players[t].body.y
+                                this.moveto.x = players[t].body.x
+                                this.moveto.y = players[t].body.y
+                                this.moveto.radius = players[t].body.radius
+                                this.speedbonus = (-1 * (this.movespeedbase + this.speedboost)) + .0000001
+                                let hookdot = 200
+                                this.locked = Math.round(hookdot)
+                                this.lockholder = Math.round(hookdot)
+                                players[t].hooklist[k].life = 0
+                            }
+                        }
+                        for (let k = 0; k < players[t].slams.length; k++) {
+                            if (players[t].slams[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].slamdamage)
+                                players[t].health += (players[t].slamdamage) * .2
+                            }
+                        }
+                        for (let k = 0; k < players[t].orblist.length; k++) {
+                            if (players[t].orblist[k].body.doesPerimeterTouch(this.body)) {
+                                this.health -= (players[t].orbdamage)
+                                players[t].orblist[k].life = 0
                             }
                         }
                     }
@@ -7575,6 +8874,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
     let aliensquid = new Rectangle(100, 300, 200, 100, "purple")
     let foxghost = new Rectangle(300, 300, 200, 100, "white")
     let demontaur = new Rectangle(100, 400, 200, 100, "#00aaaa")
+    let inventrix = new Rectangle(300, 400, 200, 100, "gold")
 
     let player = new Pincushion(360, 360, "magenta")
     let enemy = new Pincushion(360, -500, "cyan")
@@ -7608,7 +8908,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
         gamepadAPI.update()
         if (selected >= 2) {
 
-            players[0].gamepadSkillsAdapter(new Point(0, 0))
+            if(players[0].locked <= 0){
+                players[0].gamepadSkillsAdapter(new Point(0, 0))
+            }
             // //console.log(gamepad_angles())
             if (players[0].locked <= 0) {
                 gamepad_control(players[0], players[0].movespeedbase + players[0].speedbonus + players[0].speedboost)
@@ -7679,7 +8981,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 object.x = players[1].body.x + ((Math.random() - .5) * 120)
                 object.y = players[1].body.y + ((Math.random() - .5) * 120)
                 count++
+                if(players[1].locked <= 0){
                 players[1].skillsAdapter(object)
+                }
                 if (count % 40 == 0) {
 
                     let object = {}
@@ -7733,6 +9037,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
             demontaur.draw()
             canvas_context.fillStyle = "silver"
             canvas_context.fillText(`Demontaur`, demontaur.x + 50, demontaur.y + 50)
+            inventrix.draw()
+            canvas_context.fillStyle = "Green"
+            canvas_context.fillText(`Inventrix`, inventrix.x + 50, inventrix.y + 50)
         }
     }
 })
