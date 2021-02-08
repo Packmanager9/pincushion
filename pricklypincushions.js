@@ -3461,7 +3461,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.player = player
             this.health = 400
             this.maxhealth = this.health
-            this.melee = .25
+            this.melee = .5
             this.goldvalue = 20
             this.movespeed = .999
             this.healthbar = new Rectangle(this.body.x - this.body.radius, this.body.y - (this.body.radius * 2), this.body.radius * 2, this.body.radius * .25, "#00ff00")
@@ -7259,6 +7259,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     class Inventrix {
         constructor(x, y, color) {
+            this.turretrange = 55
             this.speedboost = 0
             this.theftcount = 0
             this.theftbonus = 10
@@ -7519,6 +7520,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 fuzz.x = ((Math.random() - .5) * 10) + players[0].body.x
                 fuzz.y = ((Math.random() - .5) * 10) + players[0].body.y
                 this.ulting()
+                fuzz.x = ((Math.random() - .5) * this.turretrange * .7) + this.body.x
+                fuzz.y = ((Math.random() - .5) * this.turretrange * .7) + this.body.y
                 this.slam(fuzz)
 
                 if (Math.random() < .003) {
@@ -7532,6 +7535,8 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 // fuzz.y = ((Math.random() - .5) * this.turretrange * .7) + this.body.y
                 // if (!beam1.isPointInside(fuzz) && !beam2.isPointInside(fuzz)) {
                 //     if (Math.random() < .005) {
+                fuzz.x = ((Math.random() - .5) * 10) + players[0].body.x
+                fuzz.y = ((Math.random() - .5) * 10) + players[0].body.y
                 this.hooks(fuzz)
                 //     } else if (this.health > this.healthmax * .5) {
                 //         if (this.dashstate == 0) {
@@ -7672,10 +7677,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             if (this.mana >= this.slamcost) {
                 if (this.slamcooldown <= 0) {
+
+                    if(this == players[0]){
+                    to.x+=(this.body.x-360)
+                    to.y+=(this.body.y-360)
+                    }
                     let link = new LineOP(this.body, to)
                     let linkhyp = link.hypotenuse()
                     if (linkhyp <= this.turretrange) {
                         let pin = new Mob(to.x, to.y, this)
+                        console.log(to)
                         pin.melee = 1.1
                         pin.movespeed = .00001
                         pin.range *= 3
@@ -7691,7 +7702,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
                             pin.body.radius*=1.5
                         }
                         pin.tower = 1
-                        pin.body.color = "grey"
+                        if(this == players[0]){
+                            pin.body.color = "#AA5555"
+                        }else{
+                            pin.body.color = "#5555AA"
+                        }
                         this.army.push(pin)
                         this.slamcooldown = this.slamdrain
                         this.mana -= this.slamcost
@@ -7926,7 +7941,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             if (keysPressed['e']) {
                 if (this == players[0]) {
-                    let circ = new Circle(this.body.x, this.body.y, this.gluerange, "black")
+                    let circ = new Circle(this.body.x, this.body.y, this.turretrange , "black")
                     canvas_context.strokeStyle = circ.color
                     canvas_context.beginPath()
                     canvas_context.arc(circ.x, circ.y, circ.radius, 0, Math.PI * 2, true)
