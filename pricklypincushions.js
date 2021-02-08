@@ -43,7 +43,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (c.buttons) {
                 for (var b = 0, t = c.buttons.length; b < t; b++) {// loop through buttons and push the pressed ones to the array
                     if (c.buttons[b].pressed) {
-                        // //console.log(c)
+                        // ////console.log(c)
                         if (c.buttons[b].pressed == true && b == 9) {
                             if (wasfalse == 1) {
                                 paused *= -1
@@ -64,7 +64,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
             gamepadAPI.axesStatus = axes;// assign received values
             gamepadAPI.buttonsStatus = pressed;
-            // //console.log(pressed); // return buttons for debugging purposes
+            // ////console.log(pressed); // return buttons for debugging purposes
             return pressed;
         },
         buttonPressed: function (button, hold) {
@@ -283,7 +283,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 canvas_context.fill()
                 canvas_context.stroke();
             } else {
-                // //console.log("The circle is below a radius of 0, and has not been drawn. The circle is:", this)
+                // ////console.log("The circle is below a radius of 0, and has not been drawn. The circle is:", this)
             }
         }
         move() {
@@ -986,7 +986,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
         }
     }
     function gamepad_control(object, speed = 1) { // basic control for objects using the controler
-        // //console.log(gamepadAPI.axesStatus[1] * gamepadAPI.axesStatus[0])
+        // ////console.log(gamepadAPI.axesStatus[1] * gamepadAPI.axesStatus[0])
         if (typeof object.moveto != 'undefined') {
             if (typeof (gamepadAPI.axesStatus[1]) != 'undefined') {
                 if (typeof (gamepadAPI.axesStatus[0]) != 'undefined') {
@@ -1034,7 +1034,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
     }
     function gamepad_controlleg(object, speed = 1) { // basic control for objects using the controler
-        // //console.log(gamepadAPI.axesStatus[1] * gamepadAPI.axesStatus[0])
+        // ////console.log(gamepadAPI.axesStatus[1] * gamepadAPI.axesStatus[0])
         if (typeof object.body != 'undefined') {
             if (typeof (gamepadAPI.axesStatus[3]) != 'undefined') {
                 if (typeof (gamepadAPI.axesStatus[2]) != 'undefined') {
@@ -1710,7 +1710,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
             this.touch = new Circle(to.x, to.y, 25, "red")
 
-            console.log(this.body)
+            //console.log(this.body)
 
             this.body.xmom = 0 - (this.body.x - this.touch.x)
             this.body.ymom = 0 - (this.body.y - this.touch.y)
@@ -2607,10 +2607,10 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 let link = new LineOP(this.body, this.dashtarget)
                                 let hookdot = (link.hypotenuse()) / (this.movespeedbase + this.speedbonus)
                                 this.locked = Math.round(hookdot)
-                                //console.log(this.locked)
+                                ////console.log(this.locked)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                //console.log(this)
+                                ////console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -3328,7 +3328,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.locked = Math.round(hookdot)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                //console.log(this)
+                                ////console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -3629,7 +3629,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.body.draw()
             this.healthbar.draw()
 
-            // //console.log(this.healthbar)
+            // ////console.log(this.healthbar)
 
         }
         collide() {
@@ -3703,7 +3703,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 // this.locked = Math.round(hookdot)
                                 // this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                // //console.log(this)
+                                // ////console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -3992,7 +3992,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.body.draw()
             this.healthbar.draw()
 
-            // //console.log(this.healthbar)
+            // ////console.log(this.healthbar)
 
         }
         collide() {
@@ -4067,7 +4067,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 // this.locked = Math.round(hookdot)
                                 // this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                // //console.log(this)
+                                // ////console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -4828,7 +4828,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.locked = Math.round(hookdot)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                //console.log(this)
+                                ////console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -5496,7 +5496,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.locked = Math.round(hookdot)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                //console.log(this)
+                                ////console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -7334,6 +7334,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             this.hookcooldown = 0
             this.hookdamage = 120
             this.hookdrain = 180
+            this.towers = 1
 
         }
         marshal() {
@@ -7376,6 +7377,9 @@ window.addEventListener('DOMContentLoaded', (event) => {
         burial() {
             for (let t = 0; t < this.army.length; t++) {
                 if (this.army[t].health <= 0) {
+                    if(this.army[t].tower == 1){
+                        this.towers--
+                    }
                     this.army.splice(t, 1)
                 }
             }
@@ -7679,14 +7683,16 @@ window.addEventListener('DOMContentLoaded', (event) => {
                 if (this.slamcooldown <= 0) {
 
                     if(this == players[0]){
-                    to.x+=(this.body.x-360)
-                    to.y+=(this.body.y-360)
+                        if(to.x == TIP_engine.x && to.y == TIP_engine.y){
+                            to.x+=(this.body.x-360)
+                            to.y+=(this.body.y-360)
+                        }
                     }
                     let link = new LineOP(this.body, to)
                     let linkhyp = link.hypotenuse()
                     if (linkhyp <= this.turretrange) {
                         let pin = new Mob(to.x, to.y, this)
-                        console.log(to)
+                        //console.log(to)
                         pin.melee = 1.1
                         pin.movespeed = .00001
                         pin.range *= 3
@@ -7707,7 +7713,24 @@ window.addEventListener('DOMContentLoaded', (event) => {
                         }else{
                             pin.body.color = "#5555AA"
                         }
-                        this.army.push(pin)
+                        // console.log(this.towers)
+                        if(this.towers<4){
+                            this.army.push(pin)
+                            this.towers++
+                        }else{
+                            let punter = 1
+                            for(let t = 0;t<this.army.length;t++){
+                                if(this.army[t].tower == 1){
+                                    if(punter == 0){
+                                        console.log("hit")
+                                        this.army.splice(t,1)
+                                        this.army.push(pin)
+                                        break
+                                    }
+                                    punter--
+                                }
+                            }
+                        }
                         this.slamcooldown = this.slamdrain
                         this.mana -= this.slamcost
                     }
@@ -7751,7 +7774,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if (this.orbcooldown <= 0) {
                 if (this.mana > this.orbcost) {
                     if (this.orbcooldown <= 0) {
-                        // console.log(to)
+                        // //console.log(to)
 
                         if (typeof (gamepadAPI.axesStatus[2]) != 'undefined') {
                             if (typeof (gamepadAPI.axesStatus[3]) != 'undefined') {
@@ -7786,7 +7809,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
 
 
 
-                                // console.log(to)
+                                // //console.log(to)
                             }
                         }
 
@@ -7888,7 +7911,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
             }
         }
         draw() {
-            // console.log(this.ult)
+            // //console.log(this.ult)
             if (this == players[0]) {
                 canvas_context.fillStyle = "gold"
                 canvas_context.font = "20px arial"
@@ -8741,7 +8764,7 @@ window.addEventListener('DOMContentLoaded', (event) => {
                                 this.locked = Math.round(hookdot)
                                 this.lockholder = Math.round(hookdot)
                                 players[t].hooklist[k].life = 0
-                                //console.log(this)
+                                ////console.log(this)
                             }
                         }
                     } else if (players[t].aliensquid == 1) {
@@ -8926,11 +8949,11 @@ window.addEventListener('DOMContentLoaded', (event) => {
             if(players[0].locked <= 0){
                 players[0].gamepadSkillsAdapter(new Point(0, 0))
             }
-            // //console.log(gamepad_angles())
+            // ////console.log(gamepad_angles())
             if (players[0].locked <= 0) {
                 gamepad_control(players[0], players[0].movespeedbase + players[0].speedbonus + players[0].speedboost)
             } else {
-                //console.log(players[0].locked)
+                ////console.log(players[0].locked)
             }
 
             if (paused == -1) {
