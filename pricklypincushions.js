@@ -7722,7 +7722,6 @@ window.addEventListener('DOMContentLoaded', (event) => {
                             for(let t = 0;t<this.army.length;t++){
                                 if(this.army[t].tower == 1){
                                     if(punter == 0){
-                                        console.log("hit")
                                         this.army.splice(t,1)
                                         this.army.push(pin)
                                         break
